@@ -34,8 +34,7 @@ pros::Rotation Robot::CATAROT(20);
 pros::IMU Robot::IMU(0);
 
 // Expansion Pistons
-pros::ADIDigitalOut Robot::INT1({{0, 'A'}});
-pros::ADIDigitalOut Robot::INT2({{0, 'C'}});
+pros::ADIDigitalOut Robot::INT_EXP('H');
 
 
 
@@ -54,6 +53,8 @@ PID Robot::turn(0, 0, 0, 0, 0);
 
 Cata Robot::catapult;
 Intake Robot::intake;
+std::atomic<bool> Robot::cata_pause;
+PID Robot::cata_power(20, 0, 0, 0, 0);
 
 /* ========================================================================== */
 /*                               Utility 🔨⛏ 🛠                               */
@@ -66,30 +67,10 @@ TeamSelection Robot::teamSelection = TeamSelection::UNKNOWN;
 /* ========================================================================== */
 void Robot::driver_thread(void *ptr) {
     while(true){
-            // FLY.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 
-            int flyspeed_mode = 0;
-            bool flyspeed_change = false;
-            double flyspeed = 0;
-
-            bool activate_triple_shot = false;
-            int triple_shot_time = 0;
-            int numShots = 0;
-            int shot_time_start = 0;
-
-            bool activate_single_shot = false;
-            int single_shot_time = 0;
-
-            bool activate_angle_change = false;
 
             INT.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 
-            // FL.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-                // CL.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-                // BL.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-                // FR.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-                // CR.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-                // BR.set_brake_mode(pros::E_MOTOR_BRAKE_COAST); 
 
             while(true) {
                 //Drive
@@ -106,7 +87,8 @@ void Robot::driver_thread(void *ptr) {
                 bool intakebutton = master.get_digital(DIGITAL_R2);
                 bool outtakebutton = master.get_digital(DIGITAL_R1);
 
-                if (intakebutton){
+
+                if (intakebutton && catapult.get_state() != 1){
                     printf("intake\n");
                     intake.intake();
                 }
@@ -117,14 +99,35 @@ void Robot::driver_thread(void *ptr) {
                     intake.stopintake();
                 }
 
-                bool cata = master.get_digital(DIGITAL_A);
-                bool cata2 = master.get_digital(DIGITAL_B);
-                if (cata2){
-                    catapult.full_reload();
+                bool cata_reload_mid = master.get_digital(DIGITAL_A);
+                bool cata_reload_full = master.get_digital(DIGITAL_B);
+                bool cata_shoot = master.get_digital(DIGITAL_X);
+
+                if (intake.pneu_state == 1) {
+                    if (cata_reload_mid){
+                        catapult.reload_to_mid();
+                    }
+                    if (cata_reload_full){
+                        catapult.full_reload();
+                    }
+                    if(cata_shoot) {
+                        cata_pause = true;
+                        pros::delay(250);
+                        catapult.shoot();
+                        cata_pause = false;
+                    }
                 }
-                if (cata){
-                    catapult.shoot();
+
+
+                bool retract = master.get_digital_new_press(DIGITAL_DOWN);
+                bool expand = master.get_digital_new_press(DIGITAL_UP);
+
+                if(retract) {
+                    intake.retract();
+                } else if (expand) {
+                    intake.expand();
                 }
+
                 pros::delay(5);
             }}
         pros::delay(5);
@@ -155,6 +158,7 @@ void Robot::display_thread(void *ptr) {
 
 void Robot::controller_thread(void *ptr) {
     while (true) {
+        if (!Robot::cata_pause) Robot::catapult.reload_to_angle();
         pros::delay(50);
     }
 }

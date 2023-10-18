@@ -24,9 +24,9 @@ class Intake{
 
         void motorunlock_intake(){motor_locked = false;};
 
-        void lift();
+        void expand();
 
-        void unlift();
+        void retract();
 
         void intake();
 

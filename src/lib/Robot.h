@@ -49,8 +49,7 @@ class Robot {
         static pros::Imu IMU;
 
         // Intake Pistons
-        static pros::ADIDigitalOut INT1;
-        static pros::ADIDigitalOut INT2;
+        static pros::ADIDigitalOut INT_EXP;
 
     // Drive
         static Drive drive;
@@ -62,8 +61,11 @@ class Robot {
 
         static Cata catapult;
         static Intake intake;
+        static PID cata_power;
+        static std::atomic<bool> cata_pause;
 
-        // Utility
+
+    // Utility
         static Threading threading;
         static TeamSelection teamSelection;
 

@@ -1,16 +1,14 @@
 #include "Intake.h"
 #include "../Robot.h"
 
-void Intake::lift(){
+void Intake::expand(){
     pneu_state = 1;
-    Robot::INT1.set_value(true);
-    Robot::INT2.set_value(true);
+    Robot::INT_EXP.set_value(true);
 }
 
-void Intake::unlift(){
+void Intake::retract(){
     pneu_state = 0;
-    Robot::INT1.set_value(false);
-    Robot::INT2.set_value(false);
+    Robot::INT_EXP.set_value(false);
 }
 
 
