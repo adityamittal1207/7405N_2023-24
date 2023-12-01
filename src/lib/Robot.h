@@ -49,7 +49,9 @@ class Robot {
         static pros::Imu IMU;
 
         // Intake Pistons
-        static pros::ADIDigitalOut INT_EXP;
+        // static pros::ADIDigitalOut LEFTWING;
+        // static pros::ADIDigitalOut RIGHTWING;
+        static pros::ADIDigitalOut WINGS;
 
     // Drive
         static Drive drive;

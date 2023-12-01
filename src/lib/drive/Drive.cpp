@@ -22,7 +22,7 @@ void Drive::move(double power, double turn) {
     Robot::BR = power - turn;
 }
 
-void Drive::move_to(Pose target, double moveAcc, double turnAcc, double maxspeed, int timeout) {
+void Drive::move_to(Pose target, double moveAcc, double turnAcc, double maxspeed, int timeout, int direc) {
     Pose curPos = Robot::odometry.getPose();
 
 //    double curPosHeading = std::fmod(curPos.theta, 180.0) - 180.0 * std::round(curPos.theta / (360.0));
@@ -50,6 +50,9 @@ void Drive::move_to(Pose target, double moveAcc, double turnAcc, double maxspeed
         headingErr = angleToPoint - curPosHeading;
         double realHeadingErr = util::to_deg(curPos.angleTo(target)) - curPosHeading;
         direction = std::cos(util::to_rad(realHeadingErr)) > 0 ? 1 : -1;
+        if(direc != 0 && moveErr > 10) {
+            direction = direc;
+        }
         if (direction < 0) { headingErr = headingErr > 0 ? headingErr - 180.0 : headingErr + 180.0; }
 
         if (std::fabs(headingErr) > turnAcc) {
@@ -105,7 +108,6 @@ void Drive::move_to(Pose target, double moveAcc, double turnAcc, double maxspeed
     brake(pros::E_MOTOR_BRAKE_COAST);
 
 }
-
 void Drive::rotate_to(double targetHeading, double turnAcc, double maxSpeed) {
     Pose curPos = Robot::odometry.getPose();
     double curPosHeading = std::fmod(curPos.theta, 180.0) - 180.0 * std::round(curPos.theta / (360.0));
@@ -114,7 +116,7 @@ void Drive::rotate_to(double targetHeading, double turnAcc, double maxSpeed) {
 
     int i = 0;
     double turnCompleteBuff = 0;
-    while (turnCompleteBuff < 5) {
+    while (turnCompleteBuff < 30) {
         i++;
         if (std::fabs(headingErr) > turnAcc) {
             turnCompleteBuff = 0;

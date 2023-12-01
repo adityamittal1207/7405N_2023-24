@@ -47,7 +47,6 @@ double PID::get_value(double error) {
 
     prev_error = error;
     double speed = p_calc + i_calc + d_calc;
-
     if(std::abs(speed) < minspeed && speed != 0) { speed = speed < 0 ? -speed : speed; }
 
     return speed;

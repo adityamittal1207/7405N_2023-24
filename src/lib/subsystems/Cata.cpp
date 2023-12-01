@@ -19,6 +19,7 @@ void Cata::shoot() {
     }   
 }
 
+
 void Cata::shoot_to_mid(){
     shoot();
     reload_to_mid();
@@ -37,12 +38,15 @@ void Cata::reload_to_angle() {
         state = 1;
         double angle = (double) (Robot::CATAROT.get_position())/100.0;
         double error = final_angle - angle;
-        double power = Robot::cata_power.get_value(error);
+        if(error > 0) {
+            double power = Robot::cata_power.get_value(error);
 
-        power = std::min(127.0, std::max(0.0, power));
+            power = std::min(127.0, std::max(0.0, power));
 
-        printf("%.2f: \t angle: %.2f, error: %.2f, power: %.2f\n", (double) pros::millis(), (double) final_angle, error, power);
+            printf("%.2f: \t angle: %.2f, error: %.2f, power: %.2f\n", (double) pros::millis(), (double) final_angle, error, power);
 
-        Robot::CATA.move(power);
+            Robot::CATA.move(power);
+        }
+       
     }
 }

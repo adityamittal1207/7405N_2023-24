@@ -18,11 +18,9 @@ void initialize() {
     }
 
     Robot::cata_pause=false;
-    Robot::INT_EXP.set_value(false);
-    Robot::threading.start("display", Robot::display_thread);
-    Robot::threading.start("controller", Robot::controller_thread);
-    Robot::threading.start("odometry", Robot::odom_thread);
-    Robot::threading.start("driver", Robot::driver_thread);
+    Robot::WINGS.set_value(false);
+    // Robot::threading.start("display", Robot::display_thread);
+    // Robot::threading.start("driver", Robot::driver_thread);
 
 }
 
