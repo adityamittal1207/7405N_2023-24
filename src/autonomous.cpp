@@ -3,6 +3,7 @@
 #include "pros/motors.h"
 #include "pros/rtos.hpp"
 #include <cinttypes>
+#include "lemlib/api.hpp"
 
 void autonomous() {
     Robot::threading.start("odometry", Robot::odom_thread);
@@ -17,6 +18,13 @@ void autonomous() {
     // left_side();
     right_side();
     // jig();
+}
+
+void lemlibleft(){
+    flipout();
+    pros::delay(250);
+    flipout();
+    chassis.turnTo(0, 28, 1000); 
 }
 
 void flipout() {

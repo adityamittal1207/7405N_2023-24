@@ -4,6 +4,8 @@
 
 
 void initialize() { 
+    Robot::chassis.calibrate();
+    chassis.setPose(0, 0, 0);
     pros::lcd::initialize();
 
     pros::delay(100);

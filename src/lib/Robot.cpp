@@ -3,6 +3,7 @@
 #include "pros/motors.h"
 #include "pros/rtos.h"
 #include "subsystems/Cata.h"
+#include "lemlib/api.hpp"
 
 // ---------------- lil qiao ---------------- //
 
@@ -68,6 +69,50 @@ Threading Robot::threading(100);
 TeamSelection Robot::teamSelection = TeamSelection::UNKNOWN;
 
 int counter = 0;
+
+/* LEMLIB!!! */
+
+pros::MotorGroup left_side_motors({Robot::FL, Robot::CL, Robot::BL});
+pros::MotorGroup right_side_motors({Robot::FR, Robot::CR, Robot::BR});
+ 
+lemlib::Drivetrain_t Robot::drivetrain {
+    &left_side_motors, // left drivetrain motors
+    &right_side_motors, // right drivetrain motors
+    10, // track width
+    3.25, // wheel diameter
+    360 // wheel rpm
+};
+lemlib::OdomSensors_t Robot::sensors {
+    nullptr, // vertical tracking wheel 1
+    nullptr, // vertical tracking wheel 2
+    nullptr, // horizontal tracking wheel 1
+    nullptr, // we don't have a second tracking wheel, so we set it to nullptr
+    &Robot::IMU // inertial sensor
+};
+
+lemlib::ChassisController_t Robot::lateralController {
+    8, // kP
+    30, // kD
+    1, // smallErrorRange
+    100, // smallErrorTimeout
+    3, // largeErrorRange
+    500, // largeErrorTimeout
+    5 // slew rate
+};
+ 
+// turning PID
+lemlib::ChassisController_t Robot::angularController {
+    4, // kP
+    40, // kD
+    1, // smallErrorRange
+    100, // smallErrorTimeout
+    3, // largeErrorRange
+    500, // largeErrorTimeout
+    0 // slew rate
+};
+
+lemlib::Chassis Robot::chassis(drivetrain, lateralController, angularController, sensors);
+
 
 /* ========================================================================== */
 /*                               Threads 🧵🪡                                 */

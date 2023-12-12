@@ -20,6 +20,7 @@
 #include <map>
 #include <functional>
 #include <string>
+#include "lemlib/api.hpp"
 
 class Robot {
     public:
@@ -77,5 +78,12 @@ class Robot {
         static void display_thread(void *ptr);
         static void controller_thread(void *ptr);
         static void odom_thread(void *ptr);
+
+    // Lemlib
+        static lemlib::Drivetrain_t drivetrain;
+        static lemlib::OdomSensors_t sensors;
+        static lemlib::ChassisController_t lateralController;
+        static lemlib::ChassisController_t angularController;
+        static lemlib::ChassisController_t chassis;
 };
 
