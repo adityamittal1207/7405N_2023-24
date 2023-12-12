@@ -63,9 +63,10 @@
 extern "C" {
 #endif
 void autonomous(void);
+void flipout(void);
 void left_side(void);
 void right_side(void);
-void awp(void);
+void jig(void);
 
 void skills(void);
 

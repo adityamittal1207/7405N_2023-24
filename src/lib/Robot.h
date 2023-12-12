@@ -52,6 +52,7 @@ class Robot {
         // static pros::ADIDigitalOut LEFTWING;
         // static pros::ADIDigitalOut RIGHTWING;
         static pros::ADIDigitalOut WINGS;
+        static pros::ADIDigitalOut BLOCKER;
 
     // Drive
         static Drive drive;

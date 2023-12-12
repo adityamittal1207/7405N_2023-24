@@ -19,6 +19,7 @@ void initialize() {
 
     Robot::cata_pause=false;
     Robot::WINGS.set_value(false);
+    Robot::BLOCKER.set_value(false);
     // Robot::threading.start("display", Robot::display_thread);
     // Robot::threading.start("driver", Robot::driver_thread);
 

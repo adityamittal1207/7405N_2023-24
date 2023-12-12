@@ -13,13 +13,13 @@
 // Controller
 pros::Controller Robot::master(pros::E_CONTROLLER_MASTER);
 
-// Motors
-pros::Motor Robot::FL(2, true);  // Front Left: 3
-pros::Motor Robot::CL(4, true); // Center Left: Port 16
-pros::Motor Robot::BL(10, true); //  // Back Left: 8
-pros::Motor Robot::FR(1, false);   // Front Right: Port 14 2.1
-pros::Motor Robot::CR(3, false); // Center Right: Port 10 0.2
-pros::Motor Robot::BR(7, false); // // Back Right: Port 5
+//Drive Motors
+pros::Motor Robot::FL(2, true);  
+pros::Motor Robot::CL(4, true); 
+pros::Motor Robot::BL(10, true); 
+pros::Motor Robot::FR(1, false);  
+pros::Motor Robot::CR(3, false); 
+pros::Motor Robot::BR(7, false); 
 
 // Intake
 pros::Motor Robot::INT(19, true); //
@@ -28,7 +28,7 @@ pros::Motor Robot::INT(19, true); //
 pros::Motor Robot::CATA(6);
 
 // Cata rotation sensor
-pros::Rotation Robot::CATAROT(5);
+pros::Rotation Robot::CATAROT(9);
 
 // Sensors
 pros::IMU Robot::IMU(8);
@@ -36,7 +36,8 @@ pros::IMU Robot::IMU(8);
 // Expansion Pistons
 // pros::ADIDigitalOut LEFTWING();
 // pros::ADIDigitalOut RIGHTWING();
-pros::ADIDigitalOut Robot::WINGS('A');
+pros::ADIDigitalOut Robot::BLOCKER('H');
+pros::ADIDigitalOut Robot::WINGS('G');
 
 int old_angle = Robot::CATAROT.get_position();
 
@@ -58,6 +59,7 @@ Intake Robot::intake;
 std::atomic<bool> Robot::cata_pause;
 PID Robot::cata_power(20, 0, 0, 0, 0);
 int final_angle = 4543;
+bool block = false;
 
 /* ========================================================================== */
 /*                               Utility 🔨⛏ 🛠                               */
@@ -73,6 +75,8 @@ int counter = 0;
 void Robot::driver_thread(void *ptr) {
     Robot::threading.start("display", Robot::display_thread);
     Robot::threading.start("odometry", Robot::odom_thread);
+    Robot::BLOCKER.set_value(false);
+    Robot::WINGS.set_value(false);
     while(true){
 
 
@@ -93,12 +97,19 @@ void Robot::driver_thread(void *ptr) {
                 //Intake
                 bool outtakebutton = master.get_digital(DIGITAL_R2);
                 bool intakebutton = master.get_digital(DIGITAL_R1);
-
-
+                bool blockerbutton = master.get_digital_new_press(DIGITAL_LEFT);
+                if (blockerbutton && block == false){
+                    BLOCKER.set_value(true);
+                    block = true;
+                }
+                else if (blockerbutton && block == true){
+                    BLOCKER.set_value(false);
+                    block = false;
+                }
                 if (intakebutton){
                     printf("intake\n");
                     intake.intake();
-                }
+                }                                                                                  
                 else if (outtakebutton){
                     intake.outtake();
                 }
@@ -111,20 +122,21 @@ void Robot::driver_thread(void *ptr) {
                 // bool cata_shoot = master.get_digital(DIGITAL_X);
                 bool cata = master.get_digital(DIGITAL_L1);
                 if(cata) {
-                    if (CATAROT.get_position() - old_angle > 250){
-                        Robot::CATA.move(0);
-                        pros::delay(260);
-                        Robot::CATA.move(127);
-                    }
-                    else{
-                        if (final_angle - CATAROT.get_position() > -300){
-                            Robot::CATA.move(105);
-                        }
-                        else{
-                            Robot::CATA.move(127);
-                        }
-                    }
-                    old_angle = CATAROT.get_position(); 
+                    // if (CATAROT.get_position() - old_angle > 380){
+                    //     // Robot::CATA.move(0);
+                    //     // pros::delay(50);
+                    //     Robot::CATA.move(127);
+                    // }
+                    // else{
+                    //     if (final_angle - CATAROT.get_position() > -300){
+                    //         Robot::CATA.move(127);
+                    //     }
+                    //     else{
+                    //         Robot::CATA.move(127);
+                    //     }
+                    // }
+                    // old_angle = CATAROT.get_position(); 
+                    Robot::CATA.move(127);
                 }
                 else{
                     Robot::CATA.move(0);
