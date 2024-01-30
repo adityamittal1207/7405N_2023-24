@@ -69,13 +69,6 @@ lemlib::ChassisController_t angularController {
 };
 
 lemlib::Chassis chassis(drivetrain, lateralController, angularController, sensors);
-/**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-
 
 
 void on_center_button() {
@@ -115,12 +108,8 @@ void move_drive(double power, double turn) {
     right_center_motor = right;
     right_back_motor = right;
 }
-/**
- * Runs initialization code. This occurs as soon as the program is started.
- *
- * All other competition modes are blocked by initialize; it is recommended
- * to keep execution time for this mode under a few seconds.
- */
+
+
 void screen() {
     // loop forever
     while (true) {
@@ -232,18 +221,19 @@ void competition_initialize() {}
  */
 
 void skills() {
-    wings.set_value(true);
+    // 1.75 -14.7
 
-    pros::delay(250);
-    chassis.moveTo(0, -12.75, 2000, 70); // move to the point (53, 53) with a timeout of 1000 ms
+
+    chassis.moveTo(0, -14, 2000, 127); // move to the point (53, 53) with a timeout of 1000 ms
     
-    wings.set_value(false);
 
     pros::delay(250);
 
-    chassis.moveTo(0, -20, 2000, 70); // move to the point (53, 53) with a timeout of 1000 ms
-    chassis.turnTo(-6.7, -25.5, 2000, true, 70);
-    chassis.moveTo(-6.7, -25.5, 750, 70);
+    chassis.turnTo(1.75, -14.7, 2000, 70);
+    chassis.moveTo(1.75, -14.7, 2000, 70);
+
+    pros::delay(25100000);
+
 
     chassis.moveTo(-4.5,-22, 750, 127);
     pros::delay(200);
@@ -332,8 +322,7 @@ void skills() {
     pros::delay(1000);
     move(0,0);
 
-    // chassis.turnTo(-6, -16, 2000, false, 70);
-    // chassis.moveTo(0.6, 20, 1750, 70);
+
     
 }
 void left_auton() {
@@ -402,36 +391,6 @@ void left_auton() {
 
     move_drive(0,0);
 
-
-    //sto
-
-
-    
-    
-    pros::delay(500043235838432);
-
-    intake.move(127);
-    // chassis.turnTo(48.9 ,-14.7, 2000, false, 100);
-    // chassis.moveTo(48.9, -14.7,2000,100);
-    chassis.turnTo(44, -21, 2000, false, 100);
-    chassis.moveTo(44, -21,2000,70);
-    // pros::delay(300000000);
-    pros::delay(750);
-    rotate_to(225, 6, 127);
-    // chassis.moveTo(34.6, -33.8,2000 ,100);
-    intake.move(0);
-    move(70, 0);
-    pros::delay(2000);
-    move(0, 0);
-    pros::delay(250);
-    move(127, 0);
-    pros::delay(500);
-    move(0, 0);
-    intake.move(0);
-    pros::delay(250);
-    move(-50, 0);
-    pros::delay(500);
-    move(0,0);
 }
 
 void right_auton() {
@@ -469,72 +428,18 @@ void right_auton() {
 
     chassis.turnTo(-19.6, 19.5, 2000, false, 70);
     chassis.moveTo(-19.6, 19.5, 2000, 70);
-
-    pros::delay(2400000000000000);
-
-
-    chassis.moveTo(1.7, -4.6, 2000, 70);
-    // wings.set_value(true);
-    pros::delay(500);
-    chassis.turnTo(-7, 10, 2000, false, 70);
-    pros::delay(300);
-    // wings.set_value(false);
-    chassis.moveTo(-7, 10, 2000, 50);
-    move(60,0);
-    pros::delay(100);
-    move(0,0);
-    pros::delay(100);
-    chassis.turnTo(-17, 20, 2000, false, 70);
-    chassis.moveTo(-17, 20, 2000, 127);
 }
 
 void autonomous() {
-
-    // rotate_to(135, 1, 127);
-    // right_auton();
-
-    // intake.move(100);
-    // pros::delay(150);
-    // intake.move(-100);
-    // pros::delay(150);
-    // intake.move(0);
-    // pros::delay(100);
-    // intake.move(100);
-    // pros::delay(150);
-    // intake.move(-100);
-    // pros::delay(150);
-    // intake.move(0);
-    // pros::delay(100);
-    // intake.move(100);
-    // pros::delay(150);
-    // intake.move(-100);
-    // pros::delay(150);
-    // intake.move(0);
-    // pros::delay(150);
-
-    // skills();
+    skills();
+    
 
     // right_auton();
-    left_auton();
+    // left_auton();
     // skills();
-//    chassis.moveTo(-14, -25.5, 500, 127);
 
 }
 
-
-/**
- * Runs the operator control code. This function will be started in its own task
- * with the default priority and stack size whenever the robot is enabled via
- * the Field Management System or the VEX Competition Switch in the operoator
- * control mode.
- *
- * If no competition control is connected, this function will run immediately
- * following initialize().
- *
- * If the robot is disabled or communications is lost, the
- * operator control task will be stopped. Re-enabling the robot will restart the
- * task, not resume it from where it left off.
- */
 void opcontrol() {
     bool block_activate = false;
     bool wings_activate = false;
