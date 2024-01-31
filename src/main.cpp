@@ -82,13 +82,19 @@ void on_center_button() {
 	}
 }
 
-void move(double power, double turn) {
-    left_front_motor = power + turn;
-    left_center_motor = power + turn;
-    left_back_motor = power + turn;
-    right_front_motor = power - turn;
-    right_center_motor = power - turn;
-    right_back_motor = power - turn;
+void move(double power, double turn, bool swing=false) {
+    int left = power + turn;
+    int right = power - turn;
+
+    if (swing && left > 0) {left = 0;}
+    if (swing && right > 0) {right = 0;}
+
+    left_front_motor = left;
+    left_center_motor = left;
+    left_back_motor = left;
+    right_front_motor = right;
+    right_center_motor = right;
+    right_back_motor = right;
 }
 
 void move_drive(double power, double turn) {
@@ -139,7 +145,7 @@ static int dampen(int input) {
 
     return (int)std::round(output);
 }
-void rotate_to(double targetHeading, double turnAcc, double maxSpeed) {
+void rotate_to(double targetHeading, double turnAcc, double maxSpeed, bool swing) {
     double theta = inertial_sensor.get_rotation();
     double curPosHeading = std::fmod(theta, 180.0) - 180.0 * std::round(theta / (360.0));
     double headingErr = targetHeading - curPosHeading;
@@ -164,7 +170,7 @@ void rotate_to(double targetHeading, double turnAcc, double maxSpeed) {
 
         if (std::fabs(headingErr) > 180.0) { headingErr = headingErr > 0.0 ? headingErr - 360.0 : headingErr + 360.0; }
 
-        turnSpeed = headingErr * 1.2 + errorsum * 0.0001;
+        turnSpeed = headingErr * 1.2 + errorsum * 0.01;
 
         // if (i % 3 == 0) {
         //     std::cout << "curPos: " << curPos.toString() << ", targetHeading: " << targetHeading << ", "
@@ -176,7 +182,7 @@ void rotate_to(double targetHeading, double turnAcc, double maxSpeed) {
 
         if(std::abs(turnSpeed) > maxSpeed) {turnSpeed = turnSpeed < 0 ? -maxSpeed : maxSpeed; }
 
-        move(0, turnSpeed);
+        move(0, turnSpeed, swing);
     }
 
     printf("turn done");
@@ -458,47 +464,85 @@ void left_auton() {
 }
 
 void right_auton() {
-    wings.set_value(true);
+    intake.move(127);
+    chassis.moveTo(0, 6, 2000, 127);
+    pros::delay(100);
+    chassis.moveTo(0, -23, 2000, 127);
+    pros::delay(100);
 
+    chassis.turnTo(13.2, -35.1, 2000, 127);
     pros::delay(250);
-    chassis.moveTo(0, -12.75, 2000, 70); // move to the point (53, 53) with a timeout of 1000 ms
-    
+
+    wings.set_value(true);
+    pros::delay(250);
+
+    chassis.moveTo(10.2, -35.1, 2000, 127);
     wings.set_value(false);
 
-    pros::delay(1000);
+    pros::delay(250);
 
-    chassis.moveTo(0, -20, 2000, 70); // move to the point (53, 53) with a timeout of 1000 ms
-    chassis.turnTo(-6.7, -25.5, 2000, true, 70);
-    chassis.moveTo(-6.7, -25.5, 750, 70);
+    move_drive(-50, 0);
+    pros::delay(400);
+    move_drive(0, 0);
+
+
+    rotate_to(-90, 20, 70, true);
+
+    chassis.moveTo(40.61, -41, 1000, 127);
+
+    chassis.moveTo(15.81, -41, 2000, 127);
+
+    chassis.turnTo(35.61, -41, 2000, false, 127);
+
+    intake.move(127);
+    chassis.moveTo(35.61, -41, 2000, 127);
+    intake.move(0);
+
+    chassis.moveTo(22.81, -41, 2000, 127);
+    intake.move(127);
+
+
+    chassis.turnTo(37.64, -2.4, 2000, false, 127);
+    chassis.moveTo(37.64, -2.4, 2000, 127);
+
+
+    chassis.turnTo(48.2, -17.09, 2000, false, 127);
+
+    intake.move(-50);
+
+    chassis.moveTo(40.1, -6.02, 2000, 127);
+
+    intake.move(127);
+
+    chassis.turnTo(52, 4, 2000, false, 127);
+    chassis.moveTo(52, 4, 2000, 127);
+
+    chassis.turnTo(53, -21.1, 2000, false, 127);
+    frontwings.set_value(true);
+
+    chassis.moveTo(53, -21.1, 2000, 127);
+
+    move(0, -127);
+    pros::delay(200);
+    move(0, 0);
+
+        //47.5 0
+
+    //53, -21.1
+
+
+
+    // 20.15, -37.05
+
     
-    chassis.moveTo(-4.5,-22, 750, 127);
-    pros::delay(200);
-    chassis.moveTo(-10, -32, 750, 127);
-    pros::delay(200);
-    chassis.moveTo(-4.5,-22, 750, 127);
-    pros::delay(200);
-    chassis.moveTo(-10, -32, 750, 127);
-    pros::delay(200);
-
-    chassis.moveTo(-3,-17, 1000, 70);
-
-    chassis.turnTo(-4.1, 1.8, 2000, false, 70);
-    chassis.moveTo(-4.1, 1.8, 2000, 70);
-
-    move(60,0);
-    pros::delay(140);
-    move(0,0);
     
-
-    chassis.turnTo(-19.6, 19.5, 2000, false, 70);
-    chassis.moveTo(-19.6, 19.5, 2000, 70);
 }
 
 void autonomous() {
-    skills();
+//    skills();
     
 
-    // right_auton();
+    right_auton();
     // left_auton();
     // skills();
 
