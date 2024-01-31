@@ -1,5 +1,6 @@
 #include "main.h"
 #include "lemlib/api.hpp"
+#include <functional>
 
 pros::Motor left_front_motor(15, pros::E_MOTOR_GEARSET_06, true);
 pros::Motor left_center_motor(14, pros::E_MOTOR_GEARSET_06, true);
@@ -229,8 +230,71 @@ void skills() {
 
     pros::delay(250);
 
-    chassis.turnTo(1.75, -14.7, 2000, 70);
-    chassis.moveTo(1.75, -14.7, 2000, 70);
+    chassis.turnTo(-8.14, -10, 2000, false, 70); 
+
+    move(-50,0);
+
+    pros::delay(100);
+
+    move(0,0);
+
+    wings.set_value(true);
+
+    catapult.move(127);
+
+    pros::delay(4000);
+
+    catapult.move(0);
+
+    wings.set_value(false);
+
+    pros::delay(250);
+    // wings.set_value(true);
+
+    chassis.turnTo(-4.45, -21.77, 1500, true, 80);
+
+    chassis.moveTo(-4.45, -21.77, 1000, 100);
+
+    chassis.turnTo(-6.36, -24.5, 1500, true, 127);
+
+    chassis.moveTo(-7.8, -27.5, 750, 127);
+
+
+    move(127,0);
+
+    pros::delay(100);
+
+    move(0,0);
+
+    chassis.turnTo(-6, 5, 1500, true, 127);
+
+    chassis.moveTo(-6, 5, 1000, 80);
+
+    pros::delay(200);
+
+    chassis.turnTo(-49.3, 40.8, 1500, true, 127);
+
+    chassis.moveTo(-49.3, 40.8, 2000, 80);
+
+    wings.set_value(true);
+
+    pros::delay(250);
+
+    chassis.turnTo(-66, 42.3, 1500, true, 80);
+
+    chassis.moveTo(-66, 42.3, 2000, 80);
+
+    wings.set_value(false);
+
+    pros::delay(300);
+
+    chassis.moveTo(-70.82, 43.6, 2000, 80);
+
+    chassis.turnTo(-81, 36, 1500, true, 80);
+
+    chassis.moveTo(-81, 36, 1000, 127);
+    
+    // chassis.moveTo(1.75, -14.7, 2000, 70);
 
     pros::delay(25100000);
 
