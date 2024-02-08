@@ -465,66 +465,22 @@ void left_auton() {
 
 void right_auton() {
     intake.move(127);
-    chassis.moveTo(0, 6, 2000, 127);
+    chassis.moveTo(0, 45, 2000 ,127);
     pros::delay(100);
-    chassis.moveTo(0, -23, 2000, 127);
-    pros::delay(100);
+    chassis.moveTo(0, 26, 2000 ,127);
 
-    chassis.turnTo(13.2, -35.1, 2000, 127);
-    pros::delay(250);
+    chassis.turnTo(17, 32, 2000, false, 127);
+    intake.move(-127);
+    chassis.moveTo(17, 32, 2000, 127);
 
-    wings.set_value(true);
-    pros::delay(250);
+    chassis.moveTo(4.6, 29.0, 2000, 127);
 
-    chassis.moveTo(10.2, -35.1, 2000, 127);
-    wings.set_value(false);
+    chassis.turnTo(11.3, 40, 2000, false, 127);
+    chassis.moveTo(11.3, 40, 2000, 127);
 
-    pros::delay(250);
+    //5 30.7
+    //12.9 44
 
-    move_drive(-50, 0);
-    pros::delay(400);
-    move_drive(0, 0);
-
-
-    rotate_to(-90, 20, 70, true);
-
-    chassis.moveTo(40.61, -41, 1000, 127);
-
-    chassis.moveTo(15.81, -41, 2000, 127);
-
-    chassis.turnTo(35.61, -41, 2000, false, 127);
-
-    intake.move(127);
-    chassis.moveTo(35.61, -41, 2000, 127);
-    intake.move(0);
-
-    chassis.moveTo(22.81, -41, 2000, 127);
-    intake.move(127);
-
-
-    chassis.turnTo(37.64, -2.4, 2000, false, 127);
-    chassis.moveTo(37.64, -2.4, 2000, 127);
-
-
-    chassis.turnTo(48.2, -17.09, 2000, false, 127);
-
-    intake.move(-50);
-
-    chassis.moveTo(40.1, -6.02, 2000, 127);
-
-    intake.move(127);
-
-    chassis.turnTo(52, 4, 2000, false, 127);
-    chassis.moveTo(52, 4, 2000, 127);
-
-    chassis.turnTo(53, -21.1, 2000, false, 127);
-    frontwings.set_value(true);
-
-    chassis.moveTo(53, -21.1, 2000, 127);
-
-    move(0, -127);
-    pros::delay(200);
-    move(0, 0);
 
         //47.5 0
 
@@ -538,11 +494,13 @@ void right_auton() {
     
 }
 
+ASSET(path_txt);
+
 void autonomous() {
 //    skills();
     
-
-    right_auton();
+    chassis.follow(path_txt, 4000, 1);
+    // left_auton();
     // left_auton();
     // skills();
 
