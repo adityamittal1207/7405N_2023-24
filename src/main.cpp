@@ -250,39 +250,132 @@ void competition_initialize() {}
  */
 
 void skills() {
-    chassis.follow(path7_txt, 15, 2000, false, true);
+    // chassis.follow(path7_txt, 15, 2000, false, true);
 
-    pros::delay(1500);
+    // pros::delay(1500);
     
-    move(60, 0);
-    pros::delay(100);
-    move(-127, 0);
-    pros::delay(300);
+    // move(60, 0);
+    // pros::delay(100);
+    // move(-127, 0);
+    // pros::delay(300);
+    // move(0, 0);
+
+    // chassis.moveToPoint(2, -22.2, 2000, true, 127);
+    // chassis.turnTo(-16.2, -14.5, 2000, true, 100);
+
+    // backRightWing.set_value(true);
+
+    // catapult.move(127 * .7);
+    // catapult2.move(127 * .7);
+
+    // // Activate cata
+
+    // pros::delay(2000);
+
+    // // 0.8,-22.5,-3.5
+    // // -7.6,19.4,-34.1
+    // // -31.5,53.3,-34.1
+    // // -78.3,63.4,-1.3
+
+    // // pros::delay(888989898998899090);
+
+    // catapult.move(0);
+    // catapult2.move(0);
+
+    // backRightWing.set_value(false);
+    // pros::delay(500);
+
+    // chassis.turnTo(0, 1, 2000, true, 100);
+
+
+
+    // chassis.follow(path8_txt, 15, 5000, true, true);
+    // pros::delay(2500);
+    // frontLeftWing.set_value(true);
+
+    // chassis.waitUntilDone();
+
+    // frontLeftWing.set_value(false);
+
+    chassis.setPose(-87.2, 57.8,-124);
+
+    chassis.moveToPoint(-81.8,61.0, 500, false, 127);
+
+    chassis.turnTo(-16.2, -14.5, 250, true, 100);
+
+    chassis.turnTo(-69.7,9.6, 500, true, 100);
+
+    chassis.moveToPoint(-62.9,9.6, 1000, true, 127);
+
+    chassis.turnTo(-91.2,27.1, 2000, true, 100);
+
+    frontLeftWing.set_value(true);
+
+    chassis.moveToPoint(-91.2,27.1, 1000, true, 127);
+
+    chassis.waitUntilDone();
+
+    move(127,30);
+
+    pros::delay(600);
+
     move(0, 0);
 
-    chassis.moveToPoint(2, -22.2, 2000, true, 127);
-    chassis.turnTo(-16.2, -14.5, 2000, true, 100);
+    frontLeftWing.set_value(false);
 
+    chassis.moveToPoint(-80.9,1, 2000, false, 127);
+
+    chassis.turnTo(-97.34,-9.9, 2000, false, 100);
+
+    chassis.moveToPoint(-88.5,-1.7, 2000, false, 127);
+
+    chassis.turnTo(-105.2,16, 2000, false, 100);
+
+    backLeftWing.set_value(true);
     backRightWing.set_value(true);
 
-    // Activate cata
+    chassis.moveToPoint(-105.2,16, 800, false, 127);
 
-    pros::delay(2000);
+    chassis.waitUntilDone();
+
+    move(-127,0);
+
+    pros::delay(350);
+
+    move(0,0);
 
     backRightWing.set_value(false);
-    pros::delay(500);
 
-    chassis.turnTo(0, 1, 2000, true, 100);
+    // pros::delay(999999999999999999);
 
-    chassis.follow(path8_txt, 15, 2000, true, true);
+    chassis.moveToPoint(-80.9, 0.4 , 2000, true, 127);
 
+    chassis.turnTo(-109.5, -18, 2000, false, 100);
 
+    // pros::delay(239493432943294329294);
 
-    // 2 -21.5, -6.31
+    chassis.moveToPoint(-109.5, -18, 2000, false, 127);
 
-    // -95, 50, -131
-    // 2, -22.2
-// -16.2 -14.5
+    chassis.turnTo(-112.6, -0.8, 2000, false, 100);
+
+    // frontLeftWing.set_value(true);
+
+    chassis.moveToPoint(-112.3, 7, 1000, false, 127);
+
+    chassis.waitUntilDone();
+
+    move(-127, -20);
+
+    pros::delay(400);
+
+    move(0,0);
+
+    // move(-127,0);
+
+    // pros::delay(400);
+
+    // move(0,0);
+
 
 }
 
@@ -435,8 +528,8 @@ void right_auton() {
 
 
 void autonomous() {
-    // skills();
-    left_auton();
+    skills();
+    // left_auton();
     // right_auton();
 }
 
@@ -449,7 +542,7 @@ void opcontrol() {
     bool cata_activate = false;
 
 
-    double shooter_coeff = 0.64;
+    double shooter_coeff = 0.666;
     double max_coeff = 0.9;
 
     int counter = 0;
