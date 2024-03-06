@@ -1,0 +1,40 @@
+0, 3.3, 90
+-0.058, 1.301, 90
+-0.094, -0.699, 90
+-0.105, -2.699, 90
+-0.089, -4.699, 90
+-0.043, -6.698, 90
+0.036, -8.696, 90
+0.156, -10.693, 90
+0.315, -12.686, 90
+0.518, -14.676, 90
+0.768, -16.66, 90
+1.074, -18.637, 90
+1.443, -20.602, 90
+1.875, -22.555, 90
+2.375, -24.491, 90
+2.961, -26.403, 90
+3.634, -28.286, 90
+4.396, -30.135, 90
+5.271, -31.933, 90
+6.252, -33.675, 89.921
+7.35, -35.346, 87.051
+8.574, -36.926, 84.084
+9.913, -38.411, 81.008
+11.384, -39.765, 77.811
+12.958, -40.998, 74.477
+14.641, -42.076, 70.986
+16.408, -43.01, 67.315
+18.244, -43.801, 63.431
+20.142, -44.43, 59.293
+22.079, -44.924, 54.844
+24.045, -45.292, 50
+25.094, -45.444, 0
+25.094, -45.444, 0
+44.887, -48.309, 0
+endData
+127
+90
+200
+0, 3.3, -0.784, -19.064, 2.231, -42.68, 25.094, -45.444
+#PATH.JERRYIO-DATA {"appVersion":"0.6.0","format":"LemLib v0.4.x (inch, byte-voltage)","gc":{"robotWidth":12,"robotHeight":12,"robotIsHolonomic":false,"showRobot":false,"uol":2.54,"pointDensity":2,"controlMagnetDistance":1.968503937007874,"fieldImage":{"displayName":"VRC 2024 - Over Under","signature":"VRC 2024 - Over Under","origin":{"__type":"built-in"}}},"paths":[{"segments":[{"controls":[{"uid":"V19JMejOkA","x":0,"y":3.3,"lock":false,"visible":true,"heading":0,"__type":"end-point"},{"uid":"uio8hRuJtR","x":-0.783861100096302,"y":-19.063903934393366,"lock":false,"visible":true,"__type":"control"},{"uid":"ch0HSgqamE","x":2.230989284889473,"y":-42.68023195011525,"lock":false,"visible":true,"__type":"control"},{"uid":"vSq31Kagv1","x":25.093604704364914,"y":-45.44384480301888,"lock":false,"visible":true,"heading":271.1,"__type":"end-point"}],"speedProfiles":[],"lookaheadKeyframes":[],"uid":"VYE2xmQYiX"}],"pc":{"speedLimit":{"minLimit":{"value":0,"label":"0"},"maxLimit":{"value":127,"label":"127"},"step":1,"from":50,"to":90},"bentRateApplicableRange":{"minLimit":{"value":0,"label":"0"},"maxLimit":{"value":1,"label":"1"},"step":0.001,"from":0.422,"to":0.714},"maxDecelerationRate":127},"name":"Path","uid":"kofkEDwpaD","lock":false,"visible":true}]}

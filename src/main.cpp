@@ -542,7 +542,7 @@ void opcontrol() {
     bool cata_activate = false;
 
 
-    double shooter_coeff = 0.666;
+    double shooter_coeff = 0.7;
     double max_coeff = 0.9;
 
     int counter = 0;
