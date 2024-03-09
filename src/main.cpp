@@ -10,6 +10,8 @@ ASSET(path5_txt);
 ASSET(path6_txt);
 ASSET(path7_txt);
 ASSET(path8_txt);
+ASSET(path9_txt);
+ASSET(path10_txt);
 
 pros::Motor left_front_motor(15, pros::E_MOTOR_GEARSET_06, true);
 pros::Motor left_center_motor(14, pros::E_MOTOR_GEARSET_06, true);
@@ -91,6 +93,8 @@ lemlib::ControllerSettings angularController {
 
 lemlib::Chassis chassis(drivetrain, lateralController, angularController, sensors);
 
+double shooter_coeff = 0.775;
+
 
 void on_center_button() {
 	static bool pressed = false;
@@ -118,14 +122,17 @@ void move(double power, double turn, bool swing=false) {
 }
 
 void move_drive(double power, double turn) {
+
+    pros::lcd::print(2, "turnpower: %f", turn);
+
     int left = power + turn;
     int right = power - turn;
 
-    if (left < 0) left = left - 7;
-    else if (left > 0) left = left + 7;
+    if (left < 0) left = left - 9;
+    else if (left > 0) left = left + 9;
 
-    if (right < 0) right = right - 7;
-    else if (right > 0) right = right + 7;
+    if (right < 0) right = right - 9;
+    else if (right > 0) right = right + 9;
 
 
     left_front_motor = left;
@@ -144,11 +151,12 @@ void screen() {
         pros::lcd::print(0, "x: %f | y: %f", pose.x, pose.y, pose.theta); // print the x position
         pros::lcd::print(1, "H: %f", pose.theta); // print the x position
 
-        printf("x: %f | y: %f | H: %f | rot: %d \n", pose.x, pose.y, pose.theta, vertical_rot.get_position());
+        // printf("x: %f | y: %f | H: %f | rot: %d \n", pose.x, pose.y, pose.theta, vertical_rot.get_position());
         pros::delay(10);
     }
 }
 static int dampen(int input) {
+    /*
         double s = 40;
         double a = .60;
         double v = (127*a-127)/(-s*s+254*s-16129);
@@ -162,7 +170,11 @@ static int dampen(int input) {
             double y = -(s - x) * (c + v * (s + x)) + a * s;
             output = y * input / abs(input);
         }
-
+    */
+    double expo = 0.4;
+    double output = 0;
+    double in = input / 127.0;
+    output = ((in * in * in) * 118 * expo) + in * 118 * (1 - expo);
     return (int)std::round(output);
 }
 void rotate_to(double targetHeading, double turnAcc, double maxSpeed, bool swing) {
@@ -249,126 +261,323 @@ void competition_initialize() {}
  * from where it left off.
  */
 
+
+void hang_test() {
+    hang.set_value(true);
+    move(-80,0);
+    pros::delay(575);
+    catapult.move(90);
+    catapult2.move(90);
+    pros::delay(425);
+    catapult.move(0);
+    catapult2.move(0);
+    move(0,0);
+    backRightWing.set_value(true);
+    pros::delay(100);
+    hang.set_value(false);
+    catapult.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    catapult2.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    catapult.brake();
+    catapult2.brake();
+    pros::delay(1000);
+    backRightWing.set_value(false);
+
+}
+
 void skills() {
-    // chassis.follow(path7_txt, 15, 2000, false, true);
+    chassis.follow(path7_txt, 15, 2000, false, true);
 
-    // pros::delay(1500);
+    pros::delay(1500);
     
-    // move(60, 0);
-    // pros::delay(100);
-    // move(-127, 0);
-    // pros::delay(300);
-    // move(0, 0);
+    move(60, 0);
+    pros::delay(100);
+    move(-127, 0);
+    pros::delay(300);
+    move(0, 0);
 
-    // chassis.moveToPoint(2, -22.2, 2000, true, 127);
-    // chassis.turnTo(-16.2, -14.5, 2000, true, 100);
+    chassis.moveToPoint(2, -22.2, 2000, true, 127);
 
-    // backRightWing.set_value(true);
+    chassis.turnTo(-16.3,-14.5, 2000, true, 100);
 
-    // catapult.move(127 * .7);
-    // catapult2.move(127 * .7);
+    backRightWing.set_value(true);
 
-    // // Activate cata
+    pros::delay(500);
 
-    // pros::delay(2000);
+    // pros::delay(75000000000000);
 
-    // // 0.8,-22.5,-3.5
-    // // -7.6,19.4,-34.1
-    // // -31.5,53.3,-34.1
-    // // -78.3,63.4,-1.3
+    catapult.move(127 * 0.715);
+    catapult2.move(127 * 0.715);
 
-    // // pros::delay(888989898998899090);
+    // Activate cata
 
-    // catapult.move(0);
-    // catapult2.move(0);
+    pros::delay(28000);
+    // pros::delay(1500);
 
-    // backRightWing.set_value(false);
-    // pros::delay(500);
+    // 0.8,-22.5,-3.5
+    // -7.6,19.4,-34.1
+    // -31.5,53.3,-34.1
+    // -78.3,63.4,-1.3
 
-    // chassis.turnTo(0, 1, 2000, true, 100);
+    // pros::delay(888989898998899090);
+
+    catapult.move(0);
+    catapult2.move
+    (0);
+
+    backRightWing.set_value(false);
+    pros::delay(500);
+
+    chassis.turnTo(0, 1, 2000, true, 100);
 
 
+    // pros::del
+    chassis.follow(path8_txt, 15, 5700, true);
 
-    // chassis.follow(path8_txt, 15, 5000, true, true);
-    // pros::delay(2500);
-    // frontLeftWing.set_value(true);
 
     // chassis.waitUntilDone();
 
+    // chassis.follow(path9_txt,15,5000,true);
+
+    // -49.8,55.7,-41
+
+    // -90.5,54.9,-126
+    // pros::delay(2700);
+    // frontLeftWing.set_value(true);
+
+    chassis.waitUntilDone();
+    move(-50,0);
+    pros::delay(300);
+    move(127,-10);
+    pros::delay(400);
+    move(-100,0);
+    pros::delay(300);
+    move(110,0);
+    pros::delay(300);
+    move(0,0);
+
+    // pros::delay(393939393939393939333);
+
     // frontLeftWing.set_value(false);
 
-    chassis.setPose(-87.2, 57.8,-124);
+    // pros::delay(50004305053405430543503530);
 
-    chassis.moveToPoint(-81.8,61.0, 500, false, 127);
+    chassis.moveToPoint(-79,61.5, 500, false, 127);
 
-    chassis.turnTo(-16.2, -14.5, 250, true, 100);
+    // pros::delay(3924934039324924324092342034324324);
 
     chassis.turnTo(-69.7,9.6, 500, true, 100);
 
-    chassis.moveToPoint(-62.9,9.6, 1000, true, 127);
+    chassis.moveToPoint(-62.9,14, 1300, true, 100);
 
-    chassis.turnTo(-91.2,27.1, 2000, true, 100);
+    // pros::delay(3943299434394359454353545345945);
 
-    frontLeftWing.set_value(true);
+    chassis.turnTo(-89.8,30, 2000, false, 100);
 
-    chassis.moveToPoint(-91.2,27.1, 1000, true, 127);
+    // pros::delay(93457349534753497523455);
+
+    backLeftWing.set_value(true);
+
+    chassis.moveToPoint(-93,24.6, 700, false, 90);
+
+    // pros::delay(93457349534753497523455);
 
     chassis.waitUntilDone();
 
-    move(127,30);
+    move(0,40);
 
-    pros::delay(600);
+    pros::delay(200);
+
+    move(-90,0);
+
+    // move(90,20);
+
+    pros::delay(500);
 
     move(0, 0);
 
-    frontLeftWing.set_value(false);
+    // pros::delay(39429423943943294239439429493249234);
+// -80.8,-1.6,50
 
-    chassis.moveToPoint(-80.9,1, 2000, false, 127);
+    backLeftWing.set_value(false);
 
-    chassis.turnTo(-97.34,-9.9, 2000, false, 100);
+    chassis.moveToPoint(-76.9, 1.8, 2000, true);
 
-    chassis.moveToPoint(-88.5,-1.7, 2000, false, 127);
+    // pros::delay(93457349534753497523455); 
 
-    chassis.turnTo(-105.2,16, 2000, false, 100);
+    // -76.9, 1.8
 
+    chassis.turnTo(-86.0,-6.4, 2000, false, 100);
+
+    chassis.moveToPoint(-86.0,-6.4, 2000, false);
+
+    chassis.turnTo(-105.3,16.8, 2000, false, 100);
+
+    pros::delay(500);
+
+    // pros::delay(394293423423424234);
+
+    // backLeftWing.set_value(true);
     backLeftWing.set_value(true);
     backRightWing.set_value(true);
 
-    chassis.moveToPoint(-105.2,16, 800, false, 127);
+    chassis.moveToPoint(-105.3,16.8, 2000, false, 90);
+
 
     chassis.waitUntilDone();
 
-    move(-127,0);
+    move(-90,0);
 
     pros::delay(350);
 
+    move(80,0);
+
+    pros::delay(300);
+
+    move(-100,0);
+
+    pros::delay(500);
+
     move(0,0);
 
+    backLeftWing.set_value(false);
     backRightWing.set_value(false);
+
+    chassis.moveToPoint(-88.2, -4.8, 2000, true, 127);
+
+    // pros::delay(129234949329423947);
 
     // pros::delay(999999999999999999);
 
-    chassis.moveToPoint(-80.9, 0.4 , 2000, true, 127);
+// clipped from 422-468
 
-    chassis.turnTo(-109.5, -18, 2000, false, 100);
+    // chassis.turnTo(-115.4,-19.3, 2000, false, 100);
 
-    // pros::delay(239493432943294329294);
+    // // // pros::delay(239493432943294329294);
 
-    chassis.moveToPoint(-109.5, -18, 2000, false, 127);
+    // chassis.moveToPoint(-115.4,-19.3, 2000, false, 127);
 
-    chassis.turnTo(-112.6, -0.8, 2000, false, 100);
+    // // backLeftWing.set_value(true);
 
-    // frontLeftWing.set_value(true);
+    // chassis.turnTo(-116.2, 2.5, 2000, false, 100);
 
-    chassis.moveToPoint(-112.3, 7, 1000, false, 127);
+    // backRightWing.set_value(true);
+
+    // backLeftWing.set_value(true);
+
+    // chassis.moveToPoint(-116.2, 2.5, 1500, false, 127);
+
+    // chassis.waitUntilDone();
+
+    // // backLeftWing.set_value(false);
+
+    // // backRightWing.set_value(false);
+
+    // move(0,-40);
+
+    // pros::delay(300);
+
+    // move(-127,0);
+
+    // pros::delay(300);
+
+    // move(0,0);
+
+    // backLeftWing.set_value(false);
+    // backRightWing.set_value(false);
+
+    // chassis.turnTo(-91.8, -11.9, 2000, true, 100);
+
+    // chassis.moveToPoint(-91.8, -11.9, 2000, true, 127);
+
+    // // front turn move 
+
+    // // pros::delay(100000000000000000000);
+
+    // backLeftWing.set_value(false);
+    // backRightWing.set_value(false);
+
+    // pros::delay(100000000000000000000);
+
+    // -129,-2, -270 heading
+
+    chassis.turnTo(-129,-2, 2000, false, 100);
+
+    // backLeftWing.set_value(true);
+
+    chassis.moveToPoint(-129,-2, 2000, false, 100);
+
+    //  back turn move
+
+    // moveto -93.1, -13
+
+    // chassis.moveToPoint(-99.4, -11, 1500, false, 127);
+
+    // backLeftWing.set_value(false);
+
+    // -125.6, -7.3, -270
+
+    // -150,-15.3,-283
+
+    // -154.6,11.2,-133
+
+    // chassis.setPose(-125.6, -7.3, -270);
+
+    // pros::delay(100009876543212345678234567);
+
+    chassis.follow(path10_txt, 12, 2500, false, true);
+
+
+    // pros::delay(500394239432942392423934932994239329);
+
+    // chassis.turnTo(-128.7, -12.5, 2000, false, 100);
+
+    // chassis.moveToPoint(-128.7, -12.5, 2000, false, 127);
 
     chassis.waitUntilDone();
 
-    move(-127, -20);
+    move(0, 30);
 
-    pros::delay(400);
+    pros::delay(350);
 
-    move(0,0);
+    move(-127,0);
+
+    pros::delay(300);
+
+    move(80,0);
+
+    pros::delay(300);
+
+    move(-127,0);
+
+    pros::delay(300);
+
+    move(0,0);  
+
+// -145.5, 26.2 
+
+    // chassis.turnTo(-142.0, -23.4, false, 100);
+
+    // // backLeftWing.set_value(true);
+
+    // chassis.moveToPoint(-142.0, -23.4, 2000, false, 100);
+
+    // chassis.turnTo(-137.5,-30.19, 2000, false, 100);
+
+    // hang_test();
+
+//  turn back, move back 
+//  back turn 
+    // // frontLeftWing.set_value(true);
+
+    // chassis.moveToPoint(-112.3, 7, 1000, false, 127);
+
+    // chassis.waitUntilDone();
+
+    // move(-127, -20);
+
+    // pros::delay(400);
+
+    // move(0,0);
 
     // move(-127,0);
 
@@ -379,7 +588,6 @@ void skills() {
 
 }
 
-    
 
 void left_auton() {
     intake.move(127);
@@ -388,14 +596,14 @@ void left_auton() {
     chassis.follow(path6_txt, 15, 2000, false, true);
     pros::delay(750);
     backLeftWing.set_value(true);
-    pros::delay(400);
+    pros::delay(500);
     backLeftWing.set_value(false);
 
-    chassis.moveToPoint(19, -56, 2000, true, 127);
+    chassis.moveToPoint(19, -56, 1000, true, 127);
 
-    chassis.turnTo(24, -31, 500, true, 127);
+    chassis.turnTo(24, -31, 300, true, 127);
 
-    chassis.turnTo(60, -58, 700, true, 127);
+    chassis.turnTo(60, -58, 300, true, 127);
 
     chassis.waitUntilDone();
 
@@ -403,37 +611,37 @@ void left_auton() {
 
 
     move(127, 0);
-    pros::delay(1000);
-    move(-30, 0);
-    pros::delay(200);
+    pros::delay(400);
     move(0, 0);
+    // pros::delay(200);
+    // move(0, 0);
 
-    chassis.moveToPoint(18, -56, 2000, false, 127);
+    chassis.moveToPoint(18, -56, 750, false, 127);
 
-    chassis.turnTo(34, 0, 2000, true, 100);
+    chassis.turnTo(34, 0, 750, true, 100);
 
     intake.move(127);
 
 
-    chassis.moveToPoint(34, 0, 2000, true, 127);
+    chassis.moveToPoint(34, 0, 1500, true, 127);
 
-    chassis.moveToPoint(31.5, -14.0, 2000, false, 127);
+    chassis.moveToPoint(31.5, -14.0, 1500, false, 127);
 
-    chassis.turnTo(42.1, -24.2, 2000, true, 100);
+    chassis.turnTo(42.1, -24.2, 1000, true, 100);
 
 
-    chassis.moveToPoint(35, -19.5, 2000, true, 127, true);
+    chassis.moveToPoint(35, -19.5, 1500, true, 127, true);
         intake.move(-60);
 
-        pros::delay(1000);
+        pros::delay(300);
 
 
 
-    chassis.turnTo(54, -1, 2000, true, 100);
-    intake.move(127);
+    chassis.turnTo(54, -1, 1000, true, 100);
+    intake.move(100);
 
 
-    chassis.moveToPoint(54, -1, 2000, true, 127);
+    chassis.moveToPoint(54, -1, 1000, true, 127);
 
 
     chassis.turnTo(53.7, -33.3, 2000, true, 100);
@@ -441,7 +649,7 @@ void left_auton() {
     frontLeftWing.set_value(true);
     frontRightWing.set_value(true);
 
-    chassis.moveToPoint(53.7, -33.3, 1200, true, 127);
+    chassis.moveToPoint(53.7, -33.3, 1000, true, 127);
 
     chassis.waitUntilDone();
 
@@ -465,7 +673,7 @@ void right_auton() {
     backLeftWing.set_value(true);
 
     intake.move(127);
-    chassis.moveToPoint(0, 54, 2000, true, 127, true);
+    chassis.moveToPoint(0, 50.5, 2000, true, 127, true);
     pros::delay(250);
     backLeftWing.set_value(false);
     pros::delay(250);
@@ -480,9 +688,7 @@ void right_auton() {
     frontRightWing.set_value(true);
 
     chassis.moveToPoint(18, 54, 2000, true, 127);
-    intake.move(-127);
-
-    
+    intake.move(-127);    
     chassis.moveToPoint(6, 47, 2000, false, 127);
 
     frontLeftWing.set_value(false);
@@ -501,6 +707,12 @@ void right_auton() {
     pros::delay(500);
 
     chassis.moveToPoint(-7, 1, 2000, false, 127);
+
+    move(-60,0);
+
+    pros::delay(100);
+
+    move(0,0);
 
     chassis.turnTo(-22.6, 12.1, 2000, false, 100);
 
@@ -531,6 +743,7 @@ void autonomous() {
     skills();
     // left_auton();
     // right_auton();
+    // hang_test();
 }
 
 void opcontrol() {
@@ -538,14 +751,19 @@ void opcontrol() {
     bool wings_activate = false;
     bool hang_activate = false;
     bool _activate = false;
+    int hang_step = 0;
+    bool macron = false;
 
     bool cata_activate = false;
-
-
-    double shooter_coeff = 0.7;
     double max_coeff = 0.9;
 
     int counter = 0;
+
+    bool leftBackWingActivate = false;
+    int leftBackWingCount = 0;
+    bool leftBackWingAct = false;
+    bool yesjig = true;
+    bool jig_hang_activate = true;
 
 
 
@@ -553,11 +771,64 @@ void opcontrol() {
 
         int power = master.get_analog(ANALOG_LEFT_Y);
         int turn = master.get_analog(ANALOG_RIGHT_X);
-
         move_drive(power, dampen(turn));
+        
 
         bool outtakebutton = master.get_digital(DIGITAL_R2);
         bool intakebutton = master.get_digital(DIGITAL_R1);
+
+
+        bool frontbutton = master.get_digital_new_press(DIGITAL_L1);
+        bool wingsbutton = master.get_digital_new_press(DIGITAL_L2);
+
+        bool frontbutton_dig = master.get_digital(DIGITAL_L1);
+        bool wingsbutton_dig = master.get_digital(DIGITAL_L2);
+
+
+
+        if(frontbutton_dig && wingsbutton_dig && leftBackWingCount % 2 == 0) {
+            leftBackWingActivate = true; 
+            leftBackWingCount++;
+        } else if (frontbutton_dig && wingsbutton_dig && leftBackWingCount % 2 != 0){
+            leftBackWingActivate = false;
+        } else if (!frontbutton_dig && !wingsbutton_dig && leftBackWingCount % 2 != 0){
+            leftBackWingActivate = false;
+            leftBackWingCount++;
+        }
+
+        printf("Activate: %d \n", leftBackWingActivate);
+
+
+        if(leftBackWingActivate && !leftBackWingAct) {
+            backLeftWing.set_value(true);
+            leftBackWingAct = true;
+        } else if (leftBackWingActivate && leftBackWingAct) {
+            backLeftWing.set_value(false);
+            leftBackWingAct = false;
+        }
+
+
+        if (wingsbutton && !wings_activate && !_activate && !leftBackWingActivate){
+            backLeftWing.set_value(true);
+            backRightWing.set_value(true);
+            wings_activate = true;
+        }
+        else if (wingsbutton && wings_activate){
+            backLeftWing.set_value(false);
+            backRightWing.set_value(false);
+            wings_activate = false;
+        }
+
+        if (frontbutton && !_activate && !wings_activate && !leftBackWingActivate){
+            frontLeftWing.set_value(true);
+            frontRightWing.set_value(true);
+            _activate = true;
+        } 
+        else if (frontbutton && _activate){
+            frontLeftWing.set_value(false);
+            frontRightWing.set_value(false);
+            _activate = false;
+        }
 
         if (intakebutton){
             intake = 127;
@@ -569,32 +840,8 @@ void opcontrol() {
             intake = 0;
         }
 
-        bool frontbutton = master.get_digital_new_press(DIGITAL_L1);
-        bool wingsbutton = master.get_digital_new_press(DIGITAL_L2);
 
-        if (wingsbutton && !wings_activate && !_activate){
-            backLeftWing.set_value(true);
-            backRightWing.set_value(true);
-            wings_activate = true;
-        }
-        else if (wingsbutton && wings_activate){
-            backLeftWing.set_value(false);
-            backRightWing.set_value(false);
-            wings_activate = false;
-        }
-
-        if (frontbutton && !_activate && !wings_activate){
-            frontLeftWing.set_value(true);
-            frontRightWing.set_value(true);
-            _activate = true;
-        }
-        else if (frontbutton && _activate){
-            frontLeftWing.set_value(false);
-            frontRightWing.set_value(false);
-            _activate = false;
-        }
-
-        bool cata = master.get_digital_new_press(DIGITAL_LEFT);
+        bool cata = master.get_digital_new_press(DIGITAL_LEFT) || master.get_digital_new_press(DIGITAL_UP);
         if(cata && !cata_activate) {
             catapult.move(127 * shooter_coeff);
             catapult2.move(127 * shooter_coeff);
@@ -604,16 +851,111 @@ void opcontrol() {
             catapult.move(0);
             catapult2.move(0);
             cata_activate = false;
+            if (macron){
+                macron = false;
+                backRightWing.set_value(false);
+                wings_activate = false;
+            }
         }
+        bool jigcata = master.get_digital_new_press(DIGITAL_Y);
+
+        if(jigcata) {
+            catapult.move(50);
+            catapult2.move(50);
+            jig_hang_activate = true;
+            pros::delay(500);
+            catapult.move(10);
+            catapult2.move(10);
+        }
+        // } else if (jigcata && jig_hang_activate) {
+        //     catapult.move(10);
+        //     catapult2.move(10);
+        //     jig_hang_activate = false;
+        // }
 
         bool hang_ = master.get_digital_new_press(DIGITAL_X);
 
-        if(hang_ && !hang_activate) {
+    //     if(hang_ && !hang_activate) {
+    //         hang.set_value(true);
+    //         hang_activate = true;
+    //     } else if (hang_ && hang_activate) {
+    //         hang.set_value(false);
+    //         hang_activate = false;
+    //     }
+
+    //     hang up
+
+    // wing down 
+
+    // pros::delay(100);
+
+    // hang down 
+
+    // pros::delay(1000);
+
+    // wing up 
+        
+        if (hang_ && hang_step == 0){
             hang.set_value(true);
             hang_activate = true;
-        } else if (hang_ && hang_activate) {
+            hang_step += 1;
+        }
+        else if (hang_ && hang_step == 1){
+            backRightWing.set_value(true);
+            pros::delay(100);
             hang.set_value(false);
-            hang_activate = false;
+            pros::delay(1000);
+            backRightWing.set_value(false);
+        }
+
+        bool macrobutton_ = master.get_digital_new_press(DIGITAL_B);
+
+        // bool macrobutton_ = false;
+
+        if (macrobutton_){
+            printf("macro pressed");
+
+            macron = true;
+
+            chassis.follow(path7_txt, 15, 2000, false, true);
+
+            backLeftWing.set_value(true);
+            pros::delay(100);
+            backLeftWing.set_value(false);
+
+            // pros::delay(399932439234234293432432432423);
+
+            pros::delay(1500);
+            
+            move(60, 0);
+            pros::delay(100);
+
+            // move(0,0);
+            // pros::delay(92434934324243242423432423);
+
+            move(-127, 0);
+            pros::delay(300);
+            move(0, 0);
+
+            // pros::delay(39483294238492382934234234234234);
+
+            chassis.moveToPoint(0.2, -24, 2000, true, 127);
+
+            // pros::delay(39483294238492382934234234234234);
+
+            chassis.turnTo(-10.2, -18.8, 2000, true, 100);
+
+            chassis.moveToPoint(1.9, -25.2, 2000, true, 100);
+            
+            backRightWing.set_value(true);
+
+            wings_activate = true;
+
+            pros::delay(300);
+
+            catapult.move(127 * shooter_coeff);
+            catapult2.move(127 * shooter_coeff);
+            cata_activate = true;
         }
 
         pros::delay(20);
