@@ -310,7 +310,7 @@ void skills() {
 
     // Activate cata
 
-    pros::delay(28000);
+    pros::delay(27000);
     // pros::delay(1500);
 
     // 0.8,-22.5,-3.5
@@ -321,8 +321,7 @@ void skills() {
     // pros::delay(888989898998899090);
 
     catapult.move(0);
-    catapult2.move
-    (0);
+    catapult2.move(0);
 
     backRightWing.set_value(false);
     pros::delay(500);
@@ -590,8 +589,12 @@ void skills() {
 
 
 void left_auton() {
+    backLeftWing.set_value(true);
+
     intake.move(127);
     chassis.moveToPoint(0, 4, 2000, true, 127);
+
+    backLeftWing.set_value(false);
 
     chassis.follow(path6_txt, 15, 2000, false, true);
     pros::delay(750);
@@ -616,6 +619,7 @@ void left_auton() {
     // pros::delay(200);
     // move(0, 0);
 
+    pros::delay(10000000000);
     chassis.moveToPoint(18, -56, 750, false, 127);
 
     chassis.turnTo(34, 0, 750, true, 100);
@@ -673,7 +677,7 @@ void right_auton() {
     backLeftWing.set_value(true);
 
     intake.move(127);
-    chassis.moveToPoint(0, 50.5, 2000, true, 127, true);
+    chassis.moveToPoint(0, 40, 2000, true, 127, true);
     pros::delay(250);
     backLeftWing.set_value(false);
     pros::delay(250);
@@ -687,18 +691,24 @@ void right_auton() {
     frontLeftWing.set_value(true);
     frontRightWing.set_value(true);
 
-    chassis.moveToPoint(18, 54, 2000, true, 127);
+    chassis.moveToPoint(18, 54, 1500, true, 127);
     intake.move(-127);    
-    chassis.moveToPoint(6, 47, 2000, false, 127);
+    chassis.moveToPoint(6, 47, 1000, false, 127);
 
     frontLeftWing.set_value(false);
     frontRightWing.set_value(false);
 
-    chassis.turnTo(-15, 9, 2000, false, 100);
+    chassis.turnTo(-15, 9, 500, false, 100);
 
     chassis.moveToPoint(-15, 9, 2000, false, 127);
 
-    chassis.turnTo(-7, 1, 2000, false, 100);
+    // pros::delay(5000000000000000);
+
+    // , move fortward
+
+// -9.3, -2.9, back
+
+    chassis.turnTo(-7.8,-2.7 , 500, false, 100);
 
     pros::delay(500);
 
@@ -706,13 +716,29 @@ void right_auton() {
 
     pros::delay(500);
 
-    chassis.moveToPoint(-7, 1, 2000, false, 127);
+    // pros::delay(3994493294399432434324242);
 
-    move(-60,0);
+    // chassis.turnTo(-16.3,4.8, 700, false, 100);
 
-    pros::delay(100);
+    chassis.moveToPoint(-15,5.3 , 600, false, 127);
+
+    chassis.waitUntilDone();
+
+    move(0,-127);
+
+    pros::delay(200);
 
     move(0,0);
+
+    // -9.8 -0.6 
+
+    // pros::delay(39494439242943293424324234);
+
+    // move(-60,0);
+
+    // pros::delay(100);9.10, -1.3
+
+    // move(0,0);
 
     chassis.turnTo(-22.6, 12.1, 2000, false, 100);
 
@@ -721,7 +747,7 @@ void right_auton() {
 
     chassis.follow(path_txt, 15, 1000, false, true);
 
-    pros::delay(1200);
+    pros::delay(600);
     
     move(-127, 0);
     pros::delay(300);
@@ -729,22 +755,45 @@ void right_auton() {
 
 
     chassis.moveToPoint(-25.6, 16.2, 1250, true, 127);
+    
+    // pros::delay(223842834283482342834238428348324234);
 
-     chassis.turnTo(3.56, 1.55, 750, true, 100);  
-    chassis.moveToPoint(4, 2, 1000, true, 127);
+     chassis.turnTo(-3,-2.2, 750, true, 100);  
+    chassis.moveToPoint(-3,-2.2, 1000, true, 127);
 
-     chassis.turnTo(27, 6, 750, true, 100);  
-    chassis.moveToPoint(27, 6, 1000, true, 127);    
+    // 25.4,1.2
+
+    chassis.turnTo(25.4,1.2, 750, true, 100);  
+    chassis.moveToPoint(25.4,1.2, 1000, true, 127);    
     
 }
 
+void weirdright() {
+    backRightWing.set_value(true);
+    // backrightdownhg
+    pros::delay(300);
+    chassis.moveToPoint(0, -17.5, 2500, false, 127);  
+
+    pros::delay(500);
+    // move back to 
+    backRightWing.set_value(false);
+    chassis.moveToPoint(0, 0, 1000, true, 127);  
+    // turn move 
+    chassis.turnTo(-23.34,24.9, 2500, true, 80);  
+    chassis.moveToPoint(-23.34,24.9, 2500, true, 80);    
+    // backrightup 
+    // move forward to 0,0
+
+}
 
 void autonomous() {
-    skills();
+    // skills();
     // left_auton();
-    // right_auton();
+    right_auton();
+    // weirdright();
     // hang_test();
 }
+
 
 void opcontrol() {
     bool block_activate = false;
@@ -857,7 +906,8 @@ void opcontrol() {
                 wings_activate = false;
             }
         }
-        bool jigcata = master.get_digital_new_press(DIGITAL_Y);
+        // bool jigcata = master.get_digital_new_press(DIGITAL_Y);
+        bool jigcata = false;
 
         if(jigcata) {
             catapult.move(50);
@@ -908,9 +958,9 @@ void opcontrol() {
             backRightWing.set_value(false);
         }
 
-        bool macrobutton_ = master.get_digital_new_press(DIGITAL_B);
+        // bool macrobutton_ = master.get_digital_new_press(DIGITAL_B);
 
-        // bool macrobutton_ = false;
+        bool macrobutton_ = false;
 
         if (macrobutton_){
             printf("macro pressed");
