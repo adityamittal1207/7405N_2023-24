@@ -13,19 +13,21 @@ ASSET(path8_txt);
 ASSET(path9_txt);
 ASSET(path10_txt);
 
-pros::Motor left_front_motor(15, pros::E_MOTOR_GEARSET_06, true);
-pros::Motor left_center_motor(14, pros::E_MOTOR_GEARSET_06, true);
-pros::Motor left_back_motor(10, pros::E_MOTOR_GEARSET_06, true);
-pros::Motor right_front_motor(7, pros::E_MOTOR_GEARSET_06, false);
-pros::Motor right_center_motor(6, pros::E_MOTOR_GEARSET_06, false);
-pros::Motor right_back_motor(9, pros::E_MOTOR_GEARSET_06, false);
+pros::Motor left_front_motor(1, pros::E_MOTOR_GEARSET_06, true);
+pros::Motor left_center_motor(11, pros::E_MOTOR_GEARSET_06, true);
+pros::Motor left_back_motor(13, pros::E_MOTOR_GEARSET_06, true);
+pros::Motor left_small(16, pros::E_MOTOR_GEARSET_18, true);
+pros::Motor right_front_motor(10, pros::E_MOTOR_GEARSET_06, false);
+pros::Motor right_center_motor(20, pros::E_MOTOR_GEARSET_06, false);
+pros::Motor right_back_motor(18, pros::E_MOTOR_GEARSET_06, false);
+pros::Motor right_small(19, pros::E_MOTOR_GEARSET_18, false);
 
-pros::Motor intake(20); //
-pros::Motor catapult(4);
-pros::Motor catapult2(21, true);
+pros::Motor intake(9); //
+pros::Motor catapult(0);
+pros::Motor catapult2(0, true);
 
 
-pros::Imu inertial_sensor(3); // port 8
+pros::Imu inertial_sensor(14); 
 
 
 pros::ADIDigitalOut backLeftWing('G'); //backwings H, F
@@ -34,8 +36,8 @@ pros::ADIDigitalOut frontLeftWing('F'); //backwings H, F
 pros::ADIDigitalOut frontRightWing('H'); 
 pros::ADIDigitalOut hang('E');
 
-pros::MotorGroup left_side_motors({left_front_motor, left_center_motor, left_back_motor});
-pros::MotorGroup right_side_motors({right_front_motor, right_center_motor, right_back_motor});
+pros::MotorGroup left_side_motors({left_front_motor, left_center_motor, left_back_motor, left_small});
+pros::MotorGroup right_side_motors({right_front_motor, right_center_motor, right_back_motor, right_small});
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
@@ -48,16 +50,14 @@ lemlib::Drivetrain drivetrain {
         8
 };
 
-pros::Rotation vertical_rot(16, true); // port 1, not reversed
-pros::Rotation horizontal_rot(11, false); // port 1, not reversed
+pros::Rotation horizontal_rot(15, false); // port 1, not reversed
 
-lemlib::TrackingWheel vertical_track(&vertical_rot, 2, -3.2);
-lemlib::TrackingWheel horizontal_track(&horizontal_rot, 2, -6.5); // 0.6 -0.9
+lemlib::TrackingWheel horizontal_track(&horizontal_rot, 4.2528, 1); // 0.6 -0.9
 
 
 // odometry struct
 lemlib::OdomSensors sensors {
-        &vertical_track, // vertical tracking wheel 1
+        nullptr, // vertical tracking wheel 1
         nullptr, // vertical tracking wheel 2
         // nullptr,
         &horizontal_track, // horizontal tracking wheel 1
@@ -224,7 +224,6 @@ void rotate_to(double targetHeading, double turnAcc, double maxSpeed, bool swing
 
 void initialize() {
     pros::lcd::initialize(); // initialize brain screen
-    vertical_rot.reset_position();
     horizontal_rot.reset_position();
     chassis.calibrate(); // calibrate the chassis
     chassis.setPose(0, 0, 0); // X: 0, Y: 0, Heading: 0
@@ -677,7 +676,7 @@ void right_auton() {
     backLeftWing.set_value(true);
 
     intake.move(127);
-    chassis.moveToPoint(0, 40, 2000, true, 127, true);
+    chassis.moveToPoint(0, 46, 2000, true, 127, true);
     pros::delay(250);
     backLeftWing.set_value(false);
     pros::delay(250);
@@ -789,9 +788,10 @@ void weirdright() {
 void autonomous() {
     // skills();
     // left_auton();
-    right_auton();
+    // right_auton();
     // weirdright();
     // hang_test();
+    chassis.turnTo(0, 10, 1000, true, 50);
 }
 
 
