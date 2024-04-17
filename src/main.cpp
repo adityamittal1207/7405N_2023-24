@@ -44,15 +44,16 @@ pros::Controller master(pros::E_CONTROLLER_MASTER);
 lemlib::Drivetrain drivetrain {
         &left_side_motors, // left drivetrain motors
         &right_side_motors, // right drivetrain motors
-        10, // track width
+        11.188, // track width
         3.25, // wheel diameter
-        360, // wheel rpm
+        450, // wheel rpm
         8
+        
 };
 
 pros::Rotation horizontal_rot(15, false); // port 1, not reversed
 
-lemlib::TrackingWheel horizontal_track(&horizontal_rot, 4.2528, 1); // 0.6 -0.9
+lemlib::TrackingWheel horizontal_track(&horizontal_rot, 2.75, 4.252888446, 1); // 0.6 -0.9
 
 
 // odometry struct
@@ -60,14 +61,14 @@ lemlib::OdomSensors sensors {
         nullptr, // vertical tracking wheel 1
         nullptr, // vertical tracking wheel 2
         // nullptr,
-        &horizontal_track, // horizontal tracking wheel 1
+        nullptr, // horizontal tracking wheel 1
         nullptr, // we don't have a second tracking wheel, so we set it to nullptr
         &inertial_sensor // inertial sensor
 };
 
 // forward/backward PID
 lemlib::ControllerSettings lateralController {
-        7.5, // kP
+        4, // kP
         0,
         10, // kD
         0,
@@ -80,9 +81,9 @@ lemlib::ControllerSettings lateralController {
 
 // turning PID
 lemlib::ControllerSettings angularController {
-        5, // kP
+        1.4, // kP
         0,
-        40, // kD
+        12, // kD
         0,
         1, // smallErrorRange
         100, // smallErrorTimeout
@@ -90,6 +91,18 @@ lemlib::ControllerSettings angularController {
         500, // largeErrorTimeout
         40 // slew rate
 };
+
+// lemlib::ControllerSettings angularController {
+//         1.5, // kP
+//         0,
+//         40, // kD
+//         0,
+//         1, // smallErrorRange
+//         100, // smallErrorTimeout
+//         3, // largeErrorRange
+//         500, // largeErrorTimeout
+//         40 // slew rate
+// };
 
 lemlib::Chassis chassis(drivetrain, lateralController, angularController, sensors);
 
@@ -791,7 +804,7 @@ void autonomous() {
     // right_auton();
     // weirdright();
     // hang_test();
-    chassis.turnTo(0, 10, 1000, true, 50);
+    chassis.moveToPoint(0, 24, 5000, true, 70);
 }
 
 
