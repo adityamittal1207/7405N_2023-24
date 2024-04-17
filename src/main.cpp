@@ -12,6 +12,7 @@ ASSET(path7_txt);
 ASSET(path8_txt);
 ASSET(path9_txt);
 ASSET(path10_txt);
+ASSET(path12_txt);
 
 pros::Motor left_front_motor(1, pros::E_MOTOR_GEARSET_06, true);
 pros::Motor left_center_motor(11, pros::E_MOTOR_GEARSET_06, true);
@@ -30,11 +31,11 @@ pros::Motor catapult2(0, true);
 pros::Imu inertial_sensor(14); 
 
 
-pros::ADIDigitalOut backLeftWing('G'); //backwings H, F
-pros::ADIDigitalOut backRightWing('D'); 
-pros::ADIDigitalOut frontLeftWing('F'); //backwings H, F
+pros::ADIDigitalOut backLeftWing('F'); //backwings H, F
+pros::ADIDigitalOut backRightWing('E'); 
+pros::ADIDigitalOut frontLeftWing('D'); //backwings H, F
 pros::ADIDigitalOut frontRightWing('H'); 
-pros::ADIDigitalOut hang('E');
+pros::ADIDigitalOut hang('A');
 
 pros::MotorGroup left_side_motors({left_front_motor, left_center_motor, left_back_motor, left_small});
 pros::MotorGroup right_side_motors({right_front_motor, right_center_motor, right_back_motor, right_small});
@@ -241,6 +242,14 @@ void initialize() {
     chassis.calibrate(); // calibrate the chassis
     chassis.setPose(0, 0, 0); // X: 0, Y: 0, Heading: 0
     pros::Task screenTask(screen); // create a task to print the position to the screen
+    left_front_motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    left_back_motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    left_center_motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    left_small.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    right_front_motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    right_back_motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    right_center_motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    right_small.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 }
 
 /**
@@ -798,13 +807,107 @@ void weirdright() {
 
 }
 
+// -2.6, -31.2, 38.2
+
+void easyawpclose() {
+
+    chassis.moveToPoint(0, -32, 1000, false, 127);    
+
+    chassis.turnTo(-5.8, -34, 750, false, 80);  
+    
+    // chassis.moveToPoint(-5.8, -31, 750, false, 127);   
+
+    chassis.waitUntilDone();
+
+
+    move(-127,0);
+
+    pros::delay(250);
+
+
+
+    move(0,0);
+
+    chassis.turnTo(1.22,-24.51, 1000, true, 80);
+
+    chassis.moveToPoint(1.22,-24.51, 1000, true, 80);
+
+    chassis.turnTo(1.67, -15.6, 1000, false, 80);
+
+    chassis.moveToPoint(1.67, -15.6, 1000, false, 80);
+
+    backLeftWing.set_value(true);
+
+    chassis.moveToPoint(2.73, -3.38, 1000, false, 80);
+
+    chassis.turnTo(-4.34,3.83, 1500, false, 80);
+
+    chassis.moveToPoint(-4.34,3.83, 1500, false, 80);
+
+    backLeftWing.set_value(false);
+
+    pros::delay(500);
+
+    chassis.turnTo(-4.7, 13.2, 1000, true, 80);
+
+    chassis.moveToPoint(-4.7, 13.2, 1000, true, 80);
+
+    chassis.turnTo(-19.4, 27.8, 1000, true, 60);
+
+    frontRightWing.set_value(true);
+
+    pros::delay(300);
+
+    chassis.moveToPoint(-19.4, 27.8, 1000, true, 60);
+
+    intake.move(127);
+
+    // pros::delay(39939324924394324);
+
+    // -0.63, -29.29
+    // chassis.moveToPoint(-0.63, -29.29, 1000, true, 127);   
+
+    // chassis.turnTo(2.17, -21.04, 1200, false, 80);  
+
+    // chassis.moveToPoint(2.17,-21.04, 1000, false, 80);    
+
+
+
+
+
+
+    
+
+    // chassis.turnTo(-3.35,6.5, 1000, true, 127);
+    
+
+    
+
+
+    // 3.9, -22.33
+
+    // 4.65, -5.8
+
+
+
+    // move(0,0);
+
+    
+
+
+
+    // chassis.moveToPoint(0, 0, 1000, true, 127);  
+    
+}
+
 void autonomous() {
     // skills();
     // left_auton();
     // right_auton();
     // weirdright();
     // hang_test();
-    chassis.moveToPoint(0, 24, 5000, true, 70);
+    // chassis.moveToPoint(0, 24, 5000, true, 70);
+    easyawpclose();
 }
 
 
