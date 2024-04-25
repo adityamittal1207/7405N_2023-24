@@ -1,6 +1,14 @@
 #include "main.h"
 #include "lemlib/api.hpp"
+#include "pros/adi.hpp"
+#include "pros/rtos.hpp"
 #include <functional>
+#include <valarray>
+
+#define six_ball 0
+#define far_safe_awp 1
+#define close_rush 2
+#define close_safe_awp 3
 
 ASSET(path_txt);
 ASSET(path2_txt);
@@ -37,6 +45,9 @@ pros::ADIDigitalOut backRightWing('E');
 pros::ADIDigitalOut frontLeftWing('D'); //backwings H, F
 pros::ADIDigitalOut frontRightWing('H'); 
 pros::ADIDigitalOut hang('A');
+pros::ADIDigitalOut hangRelease('B', false);
+pros::ADIDigitalOut PTO('A');
+
 
 pros::MotorGroup left_side_motors({left_front_motor, left_center_motor, left_back_motor, left_small});
 pros::MotorGroup right_side_motors({right_front_motor, right_center_motor, right_back_motor, right_small});
@@ -74,9 +85,9 @@ lemlib::ControllerSettings lateralController {
         0,
         10, // kD
         0,
-        1, // smallErrorRange
+        0.75, // smallErrorRange
         100, // smallErrorTimeout
-        3, // largeErrorRange
+        2, // largeErrorRange
         500, // largeErrorTimeout
         5 // slew rate
 };
@@ -109,7 +120,11 @@ lemlib::ControllerSettings angularController {
 lemlib::Chassis chassis(drivetrain, lateralController, angularController, sensors);
 
 double shooter_coeff = 0.775;
+bool hang_released = false;
+int auton_running = 0;
+int as = 0;
 
+ 
 
 void on_center_button() {
 	static bool pressed = false;
@@ -131,9 +146,11 @@ void move(double power, double turn, bool swing=false) {
     left_front_motor = left;
     left_center_motor = left;
     left_back_motor = left;
+    left_small = left;
     right_front_motor = right;
     right_center_motor = right;
     right_back_motor = right;
+    right_small = right;
 }
 
 void move_drive(double power, double turn) {
@@ -153,9 +170,11 @@ void move_drive(double power, double turn) {
     left_front_motor = left;
     left_center_motor = left;
     left_back_motor = left;
+    left_small = left;
     right_front_motor = right;
     right_center_motor = right;
     right_back_motor = right;
+    right_small = right;
 }
 
 
@@ -165,7 +184,6 @@ void screen() {
         lemlib::Pose pose = chassis.getPose(); // get the current position of the robot
         pros::lcd::print(0, "x: %f | y: %f", pose.x, pose.y, pose.theta); // print the x position
         pros::lcd::print(1, "H: %f", pose.theta); // print the x position
-
         // printf("x: %f | y: %f | H: %f | rot: %d \n", pose.x, pose.y, pose.theta, vertical_rot.get_position());
         pros::delay(10);
     }
@@ -242,6 +260,7 @@ void initialize() {
     horizontal_rot.reset_position();
     chassis.calibrate(); // calibrate the chassis
     chassis.setPose(0, 0, 0); // X: 0, Y: 0, Heading: 0
+    hangRelease.set_value(false);
     pros::Task screenTask(screen); // create a task to print the position to the screen
 }
 
@@ -506,7 +525,7 @@ void skills() {
 
     // // pros::delay(100000000000000000000);
 
-    // backLeftWing.set_value(false);
+    // backLeftWing.set_value(false); 
     // backRightWing.set_value(false);
 
     // pros::delay(100000000000000000000);
@@ -519,7 +538,7 @@ void skills() {
 
     chassis.moveToPoint(-129,-2, 2000, false, 100);
 
-    //  back turn move
+    //  back turn mov
 
     // moveto -93.1, -13
 
@@ -892,6 +911,108 @@ void easyawpclose() {
     // chassis.moveToPoint(0, 0, 1000, true, 127);  
     
 }
+void arc(double pwr_right, double pwr_left, int timeout){
+    left_small = pwr_left* 127;
+    left_front_motor = pwr_left * 127;
+    left_center_motor = pwr_left * 127;
+    left_back_motor = pwr_left * 127;
+    right_small = pwr_left* 127;
+    right_front_motor = pwr_right * 127;
+    right_center_motor = pwr_right * 127;
+    right_back_motor = pwr_right * 127;
+    pros::delay(timeout);
+    left_small = 0;
+    left_front_motor = 0;
+    left_center_motor = 0;
+    left_back_motor = 0;
+    right_small = 0;
+    right_front_motor = 0;
+    right_center_motor = 0;
+    right_back_motor = 0;
+}
+
+void closeBowl(){ 
+    backLeftWing.set_value(true);
+    frontRightWing.set_value(true);
+    intake.move(-127);
+    pros::delay(150);
+    frontRightWing.set_value(false);
+    pros::delay(50);
+    backLeftWing.set_value(false);
+    // pros::delay(3929329329329932);
+    chassis.moveToPoint(0, 50.53, 1500, true, 127);
+    // pros::delay(3929329329332992939233232);
+    pros::delay(100);
+    chassis.moveToPoint(0, 0, 1500, false, 70);
+    chassis.turnTo(20, 0, 1000, true, 127);
+    pros::delay(300);
+    intake.move(127);
+    pros::delay(400);
+    intake.move(-127);
+    // pros::delay(923932923923929399929329323232);
+    chassis.turnTo(10.8, 57, 1000, true, 127);
+    chassis.moveToPoint(10.8, 57, 1500, true, 70);
+
+    chassis.waitUntilDone();
+
+    move(40, 0);
+    pros::delay(120);
+    move(0, 0);
+    // // pros::delay(2939329939923932932323);
+    // chassis.turnTo(8.88, 58.6, 1000, true, 127);
+    // chassis.moveToPoint(8.88, 58.6, 1500, true, 70);
+
+    chassis.turnTo(-13.2, 6.8, 1000, false, 127);
+    chassis.moveToPoint(-13.2, 6.8, 1500, false, 80);
+
+    chassis.turnTo(0.07, 3.06, 300, true, 127);
+    chassis.waitUntilDone();
+    backRightWing.set_value(true);
+    pros::delay(200);
+
+    chassis.turnTo(-1.63, 3.3, 1000, true, 127);
+
+    chassis.moveToPoint(-1.63, 3.3, 300, true, 127);
+
+    // pros::delay(150);
+
+    chassis.waitUntilDone();
+
+    // chassis.turnTo(13.8, 4.8, 1000, true, 127);
+
+    move(0, -127);
+
+    pros::delay(150);
+
+    move(0,0);
+
+    // chassis.turnTo(12.64, 6.3, 1000, true, 127);
+
+    pros::delay(200);
+
+    backRightWing.set_value(false);
+
+    chassis.moveToPoint(12.64, 6.3, 1500, true, 127);
+
+    intake.move(127);
+
+    chassis.moveToPoint(31.09, 12.3, 1500, true, 127);
+
+
+    pros::delay(2392392393293932939329392323);
+
+    //pros::delay(3929392932923223);
+    // chassis.turnTo(13.8, 54.1, 1000, true, 127);
+    // chassis.moveToPoint(13.8, 54.1, 1500, true, 127);
+    chassis.moveToPoint(0, 0, 1500, false, 127);
+    chassis.turnTo(20, 0, 1000, true, 127);
+    pros::delay(300);
+    intake.move(127);
+    pros::delay(300);
+    intake.move(0);
+    
+
+}
 
 void closeRush(){
     backLeftWing.set_value(true); 
@@ -903,21 +1024,98 @@ void closeRush(){
     pros::delay(300);
     backLeftWing.set_value(false); 
     frontLeftWing.set_value(false); 
-    chassis.moveToPoint(0, 43.5, 1000, true, 127);
-    chassis.turnTo(20, 43.5, 1000, true, 80);
+    chassis.moveToPoint(0, 44.5, 1000, true, 127);
+    chassis.turnTo(20, 41.5, 800, true, 80);
     frontLeftWing.set_value(true);
-    chassis.moveToPoint(33, 39.4, 1750, true, 127);
-    pros::delay(500);
+    frontRightWing.set_value(true);
+    chassis.moveToPoint(37, 41.5, 1750, true, 127);
     intake.move(127);
     pros::delay(500);
+    pros::delay(250);
     frontLeftWing.set_value(false);
-    chassis.moveToPoint(10, 41.5, 1300, false, 127);
-    chassis.turnTo(0, 0, 1000, false, 80);
-    chassis.moveToPoint(0, 0, 1000, false, 127);
+    frontRightWing.set_value(false);
+    // pros::delay(23943943943943243943242234);
+    chassis.moveToPoint(10, 41.5, 800, false, 127);
+
+    chassis.turnTo(-11.37,-1.1, 500, false, 80);
+    chassis.moveToPoint(-11.37,-1.1, 1200, false, 127);
+
+    pros::delay(650);
+
+    backLeftWing.set_value(true); 
+
+    chassis.turnTo(-4.15,-5.84, 750, false, 80);
+
     pros::delay(200);
-    //backLeftWing.set_value(false); 
+    
+    backLeftWing.set_value(false);
+
+    pros::delay(200);
+
+    // pros::delay(994239434932493243249342200);
+
+    chassis.turnTo(5.84, -7.5, 750, true, 80);
+    chassis.moveToPoint(5.84, -7.5, 1200, true, 127);
+
+    chassis.turnTo(26.2, -7.36, 750, true, 80);
+
+    pros::delay(300);
+
+    frontLeftWing.set_value(true);
+
+    chassis.moveToPoint(26.2, -7.36, 1200, true, 127);
+
+    pros::delay(93294934932493493249234329424);
+    chassis.turnTo(0, 4, 500, false, 80);
+    chassis.moveToPoint(0, 4, 800, false, 127);
+    // pros::delay(200);
+    //backLeftWing.set_value(false);
     // chassis.turnTo(-18, 20, 1000, false, 80);
-    chassis.follow(path13_txt, 15, 3500, false, true);
+    intake.move(0);
+
+    // pros::delay(1002023002323032023023);
+
+    chassis.turnTo(-14.2, 0.67, 1000, false, 80);
+    chassis.moveToPoint(-14.2, 0.67, 1000, false, 127);
+
+    chassis.turnTo(-24.3,16.2, 1000, false, 80);
+    chassis.moveToPoint(-24.3,16.2, 1000, false, 127);
+
+    chassis.waitUntilDone();
+
+    move(-127, 80);
+
+    pros::delay(500);
+
+    move(0,0);
+
+    chassis.turnTo(-21.1,11.1, 500, true, 80);
+    chassis.moveToPoint(-21.1,11.1, 800, true, 127);
+
+    backLeftWing.set_value(true);
+    chassis.turnTo(-12.5,2.66, 500, false, 80);
+    chassis.moveToPoint(-12.5,2.66, 800, false, 127);
+
+    
+
+    pros::delay(3292392349239329329239329);
+
+    chassis.turnTo(-7.5,2.9, 500, true, 80);
+    chassis.moveToPoint(-7.5,2.9, 800, true, 127);
+
+    chassis.turnTo(26.2,-1.8, 800, true, 80);
+    chassis.moveToPoint(26.2,-1.8, 2000, true, 127);
+    // chassis.follow(path13_txt, 15, 3500, false, true);
+
+
+
+    // arc(1.0, 0.5, 700);
+    // move(-127);
+    // delay(200);
+    // move(0);
+
+
+
     //  10 . 5
     //  180
     //chassis.turnTo(0, -32, 1000, false, 80);
@@ -936,6 +1134,224 @@ void closeRush(){
     
 }
 
+void farSafe() {
+    backLeftWing.set_value(true);
+    intake.move(-127);
+    pros::delay(450);
+    // move(80,0);
+    // pros::delay(150);
+    // move(0,0);
+    backLeftWing.set_value(false);
+
+    chassis.moveToPoint(0, -32.16, 2000, false, 127);
+    chassis.turnTo(8.62, -46.14, 750, false, 127);
+    backLeftWing.set_value(true);
+    chassis.moveToPoint(8.22, -46.14, 1000, false, 127);
+    chassis.turnTo(14.2, -42.4, 1250, false, 127);
+    chassis.waitUntilDone();
+    backLeftWing.set_value(false);
+    chassis.moveToPoint(26.01, -54, 1000);
+    chassis.waitUntilDone();
+    move(127, 0);
+    pros::delay(400);
+    move(-40,0);
+    pros::delay(150);
+    move(127, 0);
+    pros::delay(400);
+    move(0,0);
+    chassis.moveToPoint(30.9, -55.59, 1000, false, 127);
+    chassis.turnTo(11.8, -35.3, 750, true, 127);
+    chassis.moveToPoint(10.8, -31.2, 1000, true, 127);
+    chassis.turnTo(10.5, -7.32, 750, true, 127);
+    chassis.moveToPoint(10.5, -7.32, 1000, true, 80);
+    
+
+
+
+}
+
+void sixball() {
+    // pros::delay(392393293293923);
+
+
+    backLeftWing.set_value(true);
+    intake.move(-127);
+    pros::delay(300);
+    // move(80,0);
+    // pros::delay(150);
+    // move(0,0);
+    backLeftWing.set_value(false);
+    pros::delay(300);
+    chassis.moveToPoint(0, -31.7, 2000, false, 127);
+    // pros::delay(923923329932923923239329);
+    chassis.turnTo(11.73,-49.14, 750, false, 127);
+    backLeftWing.set_value(true);
+    chassis.moveToPoint(11.73,-49.14, 1000, false, 127);
+
+    chassis.waitUntilDone();
+
+    move(0, -127);
+
+    pros::delay(250);
+    
+    move(0,0);
+
+    // pros::delay(329329329329323232);
+
+    chassis.turnTo(17.71, -51.35, 750, false, 127);
+
+    chassis.waitUntilDone();
+    // chassis.waitUntilDone();
+    // pros::delay(39492344923429432);
+
+    chassis.moveToPoint(17.71, -51.35, 600, false, 127);
+
+
+    pros::delay(250);
+
+    backLeftWing.set_value(false);
+
+    // intake.move(127);
+    chassis.waitUntilDone();
+
+    move(-127, -20);
+    
+    pros::delay(750);
+
+    move(0,0);
+
+    // pros::delay(43943949343944393493443433443);
+
+    chassis.waitUntilDone();
+
+    chassis.moveToPoint(20.75, -55.71, 600, false, 127);
+
+    // pros::delay(2393939299339292332932);
+
+    chassis.turnTo(31.26 ,-55.63, 500, true, 127);
+
+    move(127, 0);
+
+    pros::delay(400);
+
+    move(0,0);
+
+    // pros::delay(23932929239332923923);
+
+    // chassis.turnTo(24.7,-57.65, 750, true, 127);
+
+    chassis.turnTo(33.36, -55.9, 1000, true, 127);
+
+    chassis.moveToPoint(33.36, -55.9, 700, true, 127);
+
+    // pros::delay(200);
+
+    intake.move(127);
+
+    chassis.waitUntilDone();
+
+    // pros::delay(1239239292939239232323); 
+
+    move(127,50);
+
+    pros::delay(350);
+
+    move(0,0);
+
+    // pros::delay(2392439234923923923249324);
+
+    chassis.setPose(30.5, -54.6, 100);
+
+    // pros::delay(20322392390232392393220);
+
+    // chassis.turnTo(18.36,-51.37, 200, false, 127);
+
+    chassis.moveToPoint(15.9,-54.27, 500, false, 127);
+
+    // pros::delay(9329393293293923292323);
+
+    chassis.turnTo(19.2, -6.3, 800, true, 127);
+
+    // pros::delay(39932329239239239923923923);
+
+    intake.move(-127);
+
+    chassis.moveToPoint(19.2, -6.3, 1750, true, 127);
+
+    // pros::delay(3292393293293293292323);
+
+    pros::delay(500);
+
+    chassis.turnTo(28.58, -18.1, 1000, true, 127);
+
+    pros::delay(200);
+
+    // pros::delay(329392239329393293932329233);
+
+    intake.move(127);
+
+    pros::delay(400);
+
+    intake.move(0);
+
+    // pros::delay(3292393293293293292323);
+
+    // pros::delay(9349449934934349434334);
+
+    // pros::delay(939923932239329322332);
+
+    chassis.turnTo(36.5, 3.2,  1000, true, 127);
+
+    intake.move(-127);
+
+    chassis.moveToPoint(36.5, 3.2, 1750, true, 80);
+
+    // move(0, 60);
+    // pros::delay(100);
+    // move(40, 0);
+    // pros::delay(100);
+    // move(0, 0);
+
+
+    chassis.turnTo(41.81, -16.51, 1000, true, 127);
+
+    chassis.moveToPoint(41.81, -16.51, 1000, true, 127);
+
+    intake.move(-127);
+
+    frontLeftWing.set_value(true);
+
+    frontRightWing.set_value(true);
+
+    chassis.waitUntilDone();
+
+    move(127, 0);
+
+    pros::delay(400);
+
+    move(0,0);
+
+    // move(-127, 0);
+
+    // pros::delay(300);
+
+    // move(0, -127);
+
+    // pros::delay(100);
+
+    // move(127, 0);
+
+
+    // move(80,0);
+    // pros::delay(500);
+    // move(0,80);
+    // pros::delay(600);
+    // intake.move(127);
+    // move(127,0);
+    // pros::delay(800);
+    // move(0,0);
+}
+
 void autonomous() {
     left_front_motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     left_back_motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
@@ -950,8 +1366,11 @@ void autonomous() {
     // right_auton();
     // weirdright();
     // hang_test();
+    // easyawpclose();
     // chassis.moveToPoint(0, 24, 5000, true, 70);
-    closeRush();
+    // closeRush();
+    // closeBowl();
+    // sixball();
 }
 
 
@@ -990,6 +1409,7 @@ void opcontrol() {
         int turn = master.get_analog(ANALOG_RIGHT_X);
         move_drive(power, dampen(turn));
         
+        bool hangButton = master.get_digital_new_press(DIGITAL_UP) || master.get_digital_new_press(DIGITAL_X);
 
         bool outtakebutton = master.get_digital(DIGITAL_R2);
         bool intakebutton = master.get_digital(DIGITAL_R1);
@@ -1002,6 +1422,13 @@ void opcontrol() {
         bool wingsbutton_dig = master.get_digital(DIGITAL_L2);
 
 
+        if(hangButton){
+            hangRelease.set_value(true);
+            if(hang_released){
+                PTO.set_value(true);
+            }
+            hang_released = true;
+        }
 
         if(frontbutton_dig && wingsbutton_dig && leftBackWingCount % 2 == 0) {
             leftBackWingActivate = true; 
@@ -1048,10 +1475,10 @@ void opcontrol() {
         }
 
         if (intakebutton){
-            intake = 127;
+            intake = -127;
         }
         else if (outtakebutton){
-            intake = -127;
+            intake = 127;
         }
         else{
             intake = 0;
@@ -1091,7 +1518,7 @@ void opcontrol() {
         //     jig_hang_activate = false;
         // }
 
-        bool hang_ = master.get_digital_new_press(DIGITAL_X);
+        bool hang_ = false;
 
     //     if(hang_ && !hang_activate) {
     //         hang.set_value(true);
